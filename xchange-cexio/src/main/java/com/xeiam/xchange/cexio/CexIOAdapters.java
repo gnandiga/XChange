@@ -1,3 +1,24 @@
+/**
+ * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.xeiam.xchange.cexio;
 
 import java.math.BigDecimal;
@@ -13,6 +34,7 @@ import com.xeiam.xchange.cexio.dto.account.CexIOBalanceInfo;
 import com.xeiam.xchange.cexio.dto.marketdata.CexIODepth;
 import com.xeiam.xchange.cexio.dto.marketdata.CexIOTicker;
 import com.xeiam.xchange.cexio.dto.marketdata.CexIOTrade;
+import com.xeiam.xchange.cexio.dto.trade.CexIOOrder;
 import com.xeiam.xchange.currency.Currencies;
 import com.xeiam.xchange.currency.MoneyUtils;
 import com.xeiam.xchange.dto.Order;
@@ -22,6 +44,7 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trade;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import com.xeiam.xchange.dto.trade.LimitOrder;
+import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 import com.xeiam.xchange.utils.DateUtils;
 
@@ -46,7 +69,7 @@ public class CexIOAdapters {
     BigMoney price = MoneyUtils.parse(currency + " " + trade.getPrice());
     Date date = DateUtils.fromMillisUtc(trade.getDate() * 1000L);
     // Cex.IO API does not return trade type
-    return new Trade(null, amount, tradableIdentifier, currency, price, date, String.valueOf(trade.getTid()), null);
+    return new Trade(null, amount, tradableIdentifier, currency, price, date, String.valueOf(trade.getTid()));
   }
 
   /**
@@ -138,7 +161,7 @@ public class CexIOAdapters {
     return new AccountInfo(userName, null, wallets);
   }
 
-  private static List<LimitOrder> createOrders(String tradableIdentifier, String currency, Order.OrderType orderType, List<List<BigDecimal>> orders) {
+  public static List<LimitOrder> createOrders(String tradableIdentifier, String currency, Order.OrderType orderType, List<List<BigDecimal>> orders) {
 
     List<LimitOrder> limitOrders = new ArrayList<LimitOrder>();
     for (List<BigDecimal> o : orders) {
@@ -148,16 +171,32 @@ public class CexIOAdapters {
     return limitOrders;
   }
 
-  private static LimitOrder createOrder(String tradableIdentifier, String currency, List<BigDecimal> priceAndAmount, Order.OrderType orderType) {
+  public static LimitOrder createOrder(String tradableIdentifier, String currency, List<BigDecimal> priceAndAmount, Order.OrderType orderType) {
 
     return new LimitOrder(orderType, priceAndAmount.get(1), tradableIdentifier, currency, "", null, BigMoney.of(CurrencyUnit.USD, priceAndAmount.get(0)));
   }
 
-  private static void checkArgument(boolean argument, String msgPattern, Object... msgArgs) {
+  public static void checkArgument(boolean argument, String msgPattern, Object... msgArgs) {
 
     if (!argument) {
       throw new IllegalArgumentException(MessageFormat.format(msgPattern, msgArgs));
     }
+  }
+
+  public static OpenOrders adaptOpenOrders(List<CexIOOrder> cexIOOrderList) {
+
+    List<LimitOrder> limitOrders = new ArrayList<LimitOrder>();
+
+    for (CexIOOrder cexIOOrder : cexIOOrderList) {
+      Order.OrderType orderType = cexIOOrder.getType() == CexIOOrder.Type.buy ? Order.OrderType.BID : Order.OrderType.ASK;
+      String id = Integer.toString(cexIOOrder.getId());
+      BigMoney price = BigMoney.of(CurrencyUnit.of(cexIOOrder.getTransactionCurrency()), cexIOOrder.getPrice());
+      limitOrders.add(new LimitOrder(orderType, cexIOOrder.getAmount(), cexIOOrder.getTradableIdentifier(), cexIOOrder.getTransactionCurrency(), id, DateUtils
+          .fromMillisUtc(cexIOOrder.getTime() * 1000L), price));
+    }
+
+    return new OpenOrders(limitOrders);
+
   }
 
 }

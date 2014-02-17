@@ -39,13 +39,13 @@ import com.xeiam.xchange.service.polling.PollingMarketDataService;
  */
 public class JustcoinMarketDataService extends JustcoinMarketDataServiceRaw implements PollingMarketDataService {
 
-  public JustcoinMarketDataService(final ExchangeSpecification exchangeSpecification) {
+  public JustcoinMarketDataService(ExchangeSpecification exchangeSpecification) {
 
     super(exchangeSpecification);
   }
 
   @Override
-  public Ticker getTicker(final String tradableIdentifier, final String currency, final Object... args) throws IOException {
+  public Ticker getTicker(String tradableIdentifier, String currency, Object... args) throws IOException {
 
     final JustcoinTicker[] justcoinTickers = getTickers();
 
@@ -53,7 +53,7 @@ public class JustcoinMarketDataService extends JustcoinMarketDataServiceRaw impl
   }
 
   @Override
-  public OrderBook getOrderBook(final String tradableIdentifier, final String currency, final Object... args) throws IOException {
+  public OrderBook getOrderBook(String tradableIdentifier, String currency, Object... args) throws IOException {
 
     final JustcoinDepth justcoinDepth = getMarketDepth(tradableIdentifier, currency);
 
@@ -67,8 +67,9 @@ public class JustcoinMarketDataService extends JustcoinMarketDataServiceRaw impl
   }
 
   @Override
-  public Trades getTrades(final String tradableIdentifier, final String currency, final Object... args) throws NotAvailableFromExchangeException {
+  public Trades getTrades(String tradableIdentifier, String currency, Object... args) throws NotAvailableFromExchangeException {
 
     throw new NotAvailableFromExchangeException();
   }
+
 }

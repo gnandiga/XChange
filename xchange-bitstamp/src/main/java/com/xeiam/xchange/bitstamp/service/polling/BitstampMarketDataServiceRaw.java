@@ -31,14 +31,14 @@ import com.xeiam.xchange.bitstamp.Bitstamp;
 import com.xeiam.xchange.bitstamp.dto.marketdata.BitstampOrderBook;
 import com.xeiam.xchange.bitstamp.dto.marketdata.BitstampTicker;
 import com.xeiam.xchange.bitstamp.dto.marketdata.BitstampTransaction;
-import com.xeiam.xchange.service.polling.BasePollingExchangeService;
+import com.xeiam.xchange.bitstamp.service.BitstampBaseService;
 
 /**
  * @author gnandiga
  */
-public class BitstampMarketDataServiceRaw extends BasePollingExchangeService {
+public class BitstampMarketDataServiceRaw extends BitstampBaseService {
 
-  protected final Bitstamp bitstamp;
+  private final Bitstamp bitstamp;
 
   /**
    * Initialize common properties from the exchange specification

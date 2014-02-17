@@ -45,16 +45,6 @@ public class VircurexExchange extends BaseExchange implements Exchange {
 
   }
 
-  /**
-   * @return A default configuration for this exchange
-   */
-  public static Exchange newInstance() {
-
-    Exchange exchange = new VircurexExchange();
-    exchange.applySpecification(exchange.getDefaultExchangeSpecification());
-    return exchange;
-  }
-
   @Override
   public void applySpecification(ExchangeSpecification exchangeSpecification) {
 
@@ -69,11 +59,8 @@ public class VircurexExchange extends BaseExchange implements Exchange {
   public ExchangeSpecification getDefaultExchangeSpecification() {
 
     ExchangeSpecification exchangeSpecification = new ExchangeSpecification(this.getClass().getCanonicalName());
-    exchangeSpecification.setSslUri("https://vircurex.com");
-    exchangeSpecification.setHost("vircurex.com");
-    exchangeSpecification.setPort(443);
+    exchangeSpecification.setSslUri("https://api.vircurex.com");
     exchangeSpecification.setExchangeName("Vircurex");
-    exchangeSpecification.setExchangeDescription("Vircurex");
 
     return exchangeSpecification;
   }

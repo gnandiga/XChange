@@ -60,7 +60,7 @@ import com.xeiam.xchange.utils.DateUtils;
  */
 public final class BTCEAdapters {
 
-  private static final Logger log = LoggerFactory.getLogger(BTCEAdapters.class);
+  public static final Logger log = LoggerFactory.getLogger(BTCEAdapters.class);
 
   /**
    * private Constructor
@@ -132,7 +132,7 @@ public final class BTCEAdapters {
     Date date = DateUtils.fromMillisUtc(bTCETrade.getDate() * 1000L);
 
     final String tradeId = String.valueOf(bTCETrade.getTid());
-    return new Trade(orderType, amount, tradableIdentifier, currency, price, date, tradeId, null);
+    return new Trade(orderType, amount, tradableIdentifier, currency, price, date, tradeId);
   }
 
   /**

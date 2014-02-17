@@ -1,22 +1,33 @@
+/**
+ * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.xeiam.xchange.cexio.service.polling;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import si.mazi.rescu.ParamsDigest;
-import si.mazi.rescu.RestProxyFactory;
-
-import com.xeiam.xchange.ExchangeException;
 import com.xeiam.xchange.ExchangeSpecification;
 import com.xeiam.xchange.NotAvailableFromExchangeException;
-import com.xeiam.xchange.NotYetImplementedForExchangeException;
 import com.xeiam.xchange.cexio.CexIOAdapters;
-import com.xeiam.xchange.cexio.CexIOAuthenticated;
-import com.xeiam.xchange.cexio.CexIOUtils;
-import com.xeiam.xchange.cexio.dto.account.CexIOBalanceInfo;
-import com.xeiam.xchange.cexio.service.CexIODigest;
 import com.xeiam.xchange.dto.account.AccountInfo;
-import com.xeiam.xchange.service.polling.BasePollingExchangeService;
 import com.xeiam.xchange.service.polling.PollingAccountService;
 
 /**
@@ -24,10 +35,7 @@ import com.xeiam.xchange.service.polling.PollingAccountService;
  * Since: 2/6/14
  */
 
-public class CexIOAccountService extends BasePollingExchangeService implements PollingAccountService {
-
-  private final CexIOAuthenticated exchange;
-  private ParamsDigest signatureCreator;
+public class CexIOAccountService extends CexIOAccountServiceRaw implements PollingAccountService {
 
   /**
    * Initialize common properties from the exchange specification
@@ -37,29 +45,22 @@ public class CexIOAccountService extends BasePollingExchangeService implements P
   public CexIOAccountService(ExchangeSpecification exchangeSpecification) {
 
     super(exchangeSpecification);
-    this.exchange = RestProxyFactory.createProxy(CexIOAuthenticated.class, exchangeSpecification.getSslUri());
-    signatureCreator = CexIODigest.createInstance(exchangeSpecification.getSecretKey(), exchangeSpecification.getUserName(), exchangeSpecification.getApiKey());
   }
 
   @Override
-  public AccountInfo getAccountInfo() throws ExchangeException, NotAvailableFromExchangeException, NotYetImplementedForExchangeException, IOException {
+  public AccountInfo getAccountInfo() throws IOException {
 
-    CexIOBalanceInfo info = exchange.getBalance(exchangeSpecification.getApiKey(), signatureCreator, CexIOUtils.nextNonce());
-    if (info.getError() != null) {
-      throw new ExchangeException("Error getting balance. " + info.getError());
-    }
-
-    return CexIOAdapters.adaptAccountInfo(info, exchangeSpecification.getUserName());
+    return CexIOAdapters.adaptAccountInfo(getCexIOAccountInfo(), exchangeSpecification.getUserName());
   }
 
   @Override
-  public String withdrawFunds(BigDecimal amount, String address) throws ExchangeException, NotAvailableFromExchangeException, NotYetImplementedForExchangeException, IOException {
+  public String withdrawFunds(BigDecimal amount, String address) throws IOException {
 
     throw new NotAvailableFromExchangeException();
   }
 
   @Override
-  public String requestBitcoinDepositAddress(String... arguments) throws ExchangeException, NotAvailableFromExchangeException, NotYetImplementedForExchangeException, IOException {
+  public String requestBitcoinDepositAddress(String... arguments) throws IOException {
 
     throw new NotAvailableFromExchangeException();
   }

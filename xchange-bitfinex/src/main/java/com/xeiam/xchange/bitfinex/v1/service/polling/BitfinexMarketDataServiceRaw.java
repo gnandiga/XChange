@@ -39,7 +39,7 @@ import com.xeiam.xchange.bitfinex.v1.dto.marketdata.BitfinexTrade;
  * <li>Provides access to various market data values</li>
  * </ul>
  */
-public class BitfinexMarketDataServiceRaw {
+public class BitfinexMarketDataServiceRaw extends BitfinexBasePollingService {
 
   protected final Bitfinex bitfinex;
 
@@ -50,6 +50,7 @@ public class BitfinexMarketDataServiceRaw {
    */
   public BitfinexMarketDataServiceRaw(ExchangeSpecification exchangeSpecification) {
 
+    super(exchangeSpecification);
     bitfinex = RestProxyFactory.createProxy(Bitfinex.class, exchangeSpecification.getSslUri());
   }
 

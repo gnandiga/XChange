@@ -22,26 +22,27 @@
 package com.xeiam.xchange.justcoin.service.polling;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import si.mazi.rescu.RestProxyFactory;
 
 import com.xeiam.xchange.ExchangeSpecification;
-import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.justcoin.Justcoin;
-import com.xeiam.xchange.justcoin.JustcoinUtils;
 import com.xeiam.xchange.justcoin.dto.marketdata.JustcoinDepth;
 import com.xeiam.xchange.justcoin.dto.marketdata.JustcoinTicker;
-import com.xeiam.xchange.service.polling.BasePollingExchangeService;
+import com.xeiam.xchange.justcoin.service.JustcoinBaseService;
 
 /**
  * @author jamespedwards42
  */
-public class JustcoinMarketDataServiceRaw extends BasePollingExchangeService {
+public class JustcoinMarketDataServiceRaw extends JustcoinBaseService {
 
-  protected final Justcoin justcoin;
+  private final Justcoin justcoin;
 
+  /**
+   * Constructor
+   * 
+   * @param exchangeSpecification
+   */
   public JustcoinMarketDataServiceRaw(final ExchangeSpecification exchangeSpecification) {
 
     super(exchangeSpecification);
@@ -58,8 +59,4 @@ public class JustcoinMarketDataServiceRaw extends BasePollingExchangeService {
     return justcoin.getDepth(tradableIdentifier.toUpperCase(), currency.toUpperCase());
   }
 
-  public List<CurrencyPair> getExchangeSymbols() {
-
-    return new ArrayList<CurrencyPair>(JustcoinUtils.CURRENCY_PAIRS);
-  }
 }

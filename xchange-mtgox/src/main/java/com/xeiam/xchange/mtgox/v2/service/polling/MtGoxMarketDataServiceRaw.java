@@ -33,13 +33,13 @@ import com.xeiam.xchange.mtgox.v2.dto.marketdata.MtGoxDepthWrapper;
 import com.xeiam.xchange.mtgox.v2.dto.marketdata.MtGoxTicker;
 import com.xeiam.xchange.mtgox.v2.dto.marketdata.MtGoxTickerWrapper;
 import com.xeiam.xchange.mtgox.v2.dto.marketdata.MtGoxTradesWrapper;
-import com.xeiam.xchange.service.polling.BasePollingExchangeService;
+import com.xeiam.xchange.mtgox.v2.service.MtGoxBaseService;
 import com.xeiam.xchange.service.polling.PollingMarketDataService;
 import com.xeiam.xchange.utils.Assert;
 
-public class MtGoxMarketDataServiceRaw extends BasePollingExchangeService {
+public class MtGoxMarketDataServiceRaw extends MtGoxBaseService {
 
-  protected final MtGoxV2 mtGoxV2;
+  private final MtGoxV2 mtGoxV2;
 
   /**
    * Initialize common properties from the exchange specification

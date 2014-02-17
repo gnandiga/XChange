@@ -115,7 +115,7 @@ public final class BTCChinaAdapters {
     OrderType orderType = btcChinaTrade.getOrderType().equals("sell") ? OrderType.ASK : OrderType.BID;
 
     final String tradeId = String.valueOf(btcChinaTrade.getTid());
-    return new Trade(orderType, amount, tradableIdentifier, currency, price, date, tradeId, null);
+    return new Trade(orderType, amount, tradableIdentifier, currency, price, date, tradeId);
   }
 
   /**
@@ -131,11 +131,6 @@ public final class BTCChinaAdapters {
       tradesList.add(adaptTrade(btcchinaTrade, currency, tradableIdentifier));
     }
     return new Trades(tradesList);
-  }
-
-  public static String getPriceString(BigMoney price) {
-
-    return price.getAmount().stripTrailingZeros().toPlainString();
   }
 
   /**
@@ -168,14 +163,6 @@ public final class BTCChinaAdapters {
     return new AccountInfo(result.getProfile().getUsername(), result.getProfile().getTradeFee(), BTCChinaAdapters.adaptWallets(result.getBalances(), result.getFrozens()));
   }
 
-  // /**
-  // * Adapts Map<String, BTCChinaValue> balances, Map<String,BTCChinaValue> frozens to List<Wallet>
-  // *
-  // * @param balances
-  // * @param frozens
-  // * @return
-  // */
-  // todo: can't have <> in javadoc
   /**
    * @param balances
    * @param frozens

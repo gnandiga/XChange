@@ -94,7 +94,7 @@ public final class BitstampAdapters {
     return new OrderBook(date, asks, bids);
   }
 
-  private static List<LimitOrder> createOrders(String tradableIdentifier, String currency, Order.OrderType orderType, List<List<BigDecimal>> orders) {
+  public static List<LimitOrder> createOrders(String tradableIdentifier, String currency, Order.OrderType orderType, List<List<BigDecimal>> orders) {
 
     List<LimitOrder> limitOrders = new ArrayList<LimitOrder>();
     for (List<BigDecimal> ask : orders) {
@@ -104,12 +104,12 @@ public final class BitstampAdapters {
     return limitOrders;
   }
 
-  private static LimitOrder createOrder(String tradableIdentifier, String currency, List<BigDecimal> priceAndAmount, Order.OrderType orderType) {
+  public static LimitOrder createOrder(String tradableIdentifier, String currency, List<BigDecimal> priceAndAmount, Order.OrderType orderType) {
 
     return new LimitOrder(orderType, priceAndAmount.get(1), tradableIdentifier, currency, "", null, BigMoney.of(CurrencyUnit.USD, priceAndAmount.get(0)));
   }
 
-  private static void checkArgument(boolean argument, String msgPattern, Object... msgArgs) {
+  public static void checkArgument(boolean argument, String msgPattern, Object... msgArgs) {
 
     if (!argument) {
       throw new IllegalArgumentException(MessageFormat.format(msgPattern, msgArgs));
@@ -129,7 +129,7 @@ public final class BitstampAdapters {
     List<Trade> trades = new ArrayList<Trade>();
     for (BitstampTransaction tx : transactions) {
       final String tradeId = String.valueOf(tx.getTid());
-      trades.add(new Trade(null, tx.getAmount(), tradableIdentifier, currency, BigMoney.of(CurrencyUnit.of(currency), tx.getPrice()), DateUtils.fromMillisUtc(tx.getDate() * 1000L), tradeId, null));
+      trades.add(new Trade(null, tx.getAmount(), tradableIdentifier, currency, BigMoney.of(CurrencyUnit.of(currency), tx.getPrice()), DateUtils.fromMillisUtc(tx.getDate() * 1000L), tradeId));
     }
 
     return new Trades(trades);
@@ -167,12 +167,8 @@ public final class BitstampAdapters {
   public static Trades adaptTradeHistory(BitstampUserTransaction[] bitstampUserTransactions) {
 
     List<Trade> trades = new ArrayList<Trade>();
-    for (int i = 0; i < bitstampUserTransactions.length; i++) {
-
-      BitstampUserTransaction bitstampUserTransaction = bitstampUserTransactions[i];
-
+    for (BitstampUserTransaction bitstampUserTransaction : bitstampUserTransactions) {
       if (bitstampUserTransaction.getType().equals(BitstampUserTransaction.TransactionType.trade)) { // skip account deposits and withdrawals.
-
         OrderType orderType = bitstampUserTransaction.getUsd().doubleValue() > 0.0 ? OrderType.ASK : OrderType.BID;
         BigDecimal tradableAmount = bitstampUserTransaction.getBtc();
         String tradableIdentifier = Currencies.BTC;

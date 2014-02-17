@@ -36,17 +36,17 @@ import com.xeiam.xchange.mtgox.v2.dto.MtGoxException;
 import com.xeiam.xchange.mtgox.v2.dto.trade.polling.MtGoxGenericResponse;
 import com.xeiam.xchange.mtgox.v2.dto.trade.polling.MtGoxOpenOrder;
 import com.xeiam.xchange.mtgox.v2.dto.trade.polling.MtGoxOpenOrderWrapper;
+import com.xeiam.xchange.mtgox.v2.service.MtGoxBaseService;
 import com.xeiam.xchange.mtgox.v2.service.MtGoxV2Digest;
-import com.xeiam.xchange.service.polling.BasePollingExchangeService;
 import com.xeiam.xchange.utils.Assert;
 
 /**
  * @author gnandiga
  */
-public class MtGoxTradeServiceRaw extends BasePollingExchangeService {
+public class MtGoxTradeServiceRaw extends MtGoxBaseService {
 
-  protected final MtGoxV2 mtGoxV2;
-  protected final MtGoxV2Digest signatureCreator;
+  private final MtGoxV2 mtGoxV2;
+  private final MtGoxV2Digest signatureCreator;
 
   /**
    * Initialize common properties from the exchange specification

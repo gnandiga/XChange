@@ -45,16 +45,6 @@ public class CryptoTradeExchange extends BaseExchange implements Exchange {
 
   }
 
-  /**
-   * @return A default configuration for this exchange
-   */
-  public static Exchange newInstance() {
-
-    Exchange exchange = new CryptoTradeExchange();
-    exchange.applySpecification(exchange.getDefaultExchangeSpecification());
-    return exchange;
-  }
-
   @Override
   public void applySpecification(ExchangeSpecification exchangeSpecification) {
 
@@ -73,7 +63,6 @@ public class CryptoTradeExchange extends BaseExchange implements Exchange {
     exchangeSpecification.setHost("crypto-trade.com");
     exchangeSpecification.setPort(443);
     exchangeSpecification.setExchangeName("Crypto-Trade");
-    exchangeSpecification.setExchangeDescription("Crypto-Trade is a Bitcoin exchange.");
 
     return exchangeSpecification;
   }
