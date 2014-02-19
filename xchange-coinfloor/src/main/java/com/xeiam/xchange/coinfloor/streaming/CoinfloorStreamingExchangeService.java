@@ -23,8 +23,14 @@ package com.xeiam.xchange.coinfloor.streaming;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xeiam.xchange.ExchangeException;
+import com.xeiam.xchange.coinfloor.dto.streaming.CoinfloorAuthenticationRequest;
+import com.xeiam.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,15 +39,16 @@ import com.xeiam.xchange.service.streaming.BaseWebSocketExchangeService;
 import com.xeiam.xchange.service.streaming.StreamingExchangeService;
 
 /**
- * 
  * @author gnandiga
- *
  */
 public class CoinfloorStreamingExchangeService extends BaseWebSocketExchangeService implements StreamingExchangeService {
+
   private final Logger logger = LoggerFactory.getLogger(CoinfloorStreamingExchangeService.class);
 
   private final CoinfloorStreamingConfiguration configuration;
   private final CoinfloorEventListener exchangeEventListener;
+
+  ObjectMapper jsonObjectMapper;
 
   /**
    * @param exchangeSpecification
@@ -50,16 +57,18 @@ public class CoinfloorStreamingExchangeService extends BaseWebSocketExchangeServ
   public CoinfloorStreamingExchangeService(ExchangeSpecification exchangeSpecification, CoinfloorStreamingConfiguration exchangeStreamingConfiguration) {
 
     super(exchangeSpecification, exchangeStreamingConfiguration);
-    
+
     this.configuration = exchangeStreamingConfiguration;
     this.exchangeEventListener = new CoinfloorEventListener(consumerEventQueue);
-    
+
+    this.jsonObjectMapper = new ObjectMapper();
+
   }
 
   @Override
   public void connect() {
 
-    String apiBase = null;
+    String apiBase;
     if (configuration.isEncryptedChannel()) {
       apiBase = String.format("%s:%s", exchangeSpecification.getSslUriStreaming(), exchangeSpecification.getPort());
     }
@@ -78,5 +87,54 @@ public class CoinfloorStreamingExchangeService extends BaseWebSocketExchangeServ
     internalConnect(uri, exchangeEventListener, headers);
   }
 
+  public void authenticate(CoinfloorAuthenticationRequest auth) {
 
+    try {
+      send(jsonObjectMapper.writeValueAsString(auth));
+    } catch (JsonProcessingException e) {
+      throw new ExchangeException("Cannot convert Object to String", e);
+    }
+
+  }
+
+  public void getBalances() {
+
+    throw new UnsupportedOperationException("Not implemented yet.");
+  }
+
+  public void getOrders() {
+
+    throw new UnsupportedOperationException("Not implemented yet.");
+
+  }
+
+  public void placeOrder() {
+
+    throw new UnsupportedOperationException("Not implemented yet.");
+
+  }
+
+  public void cancelOrder() {
+
+    throw new UnsupportedOperationException("Not implemented yet.");
+
+  }
+
+  public void watchOrders() {
+
+    throw new UnsupportedOperationException("Not implemented yet.");
+
+  }
+
+  public void watchTicker() {
+
+    throw new UnsupportedOperationException("Not implemented yet.");
+
+  }
+
+  @Override
+  public List<CurrencyPair> getExchangeSymbols() {
+
+    return null;
+  }
 }

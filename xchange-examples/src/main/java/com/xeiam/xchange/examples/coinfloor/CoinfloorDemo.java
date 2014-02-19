@@ -22,25 +22,25 @@
 package com.xeiam.xchange.examples.coinfloor;
 
 import com.xeiam.xchange.Exchange;
+import com.xeiam.xchange.coinfloor.dto.streaming.CoinfloorAuthenticationRequest;
 import com.xeiam.xchange.coinfloor.streaming.CoinfloorStreamingConfiguration;
+import com.xeiam.xchange.coinfloor.streaming.CoinfloorStreamingExchangeService;
 import com.xeiam.xchange.service.streaming.ExchangeStreamingConfiguration;
 import com.xeiam.xchange.service.streaming.StreamingExchangeService;
 
-
 /**
- *
  * @author gnandiga
- *
  */
 public class CoinfloorDemo {
 
   public static void main(String[] args) {
+
     CoinfloorDemo coinfloorDemo = new CoinfloorDemo();
     coinfloorDemo.start();
   }
 
-
   public void start() {
+
     Exchange coinfloorExchange = CoinfloorExampleUtils.createExchange();
 
     ExchangeStreamingConfiguration exchangeStreamingConfiguration = new CoinfloorStreamingConfiguration(10, 10000, 60000, false);
@@ -49,7 +49,10 @@ public class CoinfloorDemo {
 
     streamingExchangeService.connect();
 
-//      streamingExchangeService.send();
+    CoinfloorStreamingExchangeService coinfloorStreamingExchangeService = (CoinfloorStreamingExchangeService) streamingExchangeService;
+    CoinfloorAuthenticationRequest auth = new CoinfloorAuthenticationRequest("***", "***************");
+
+    coinfloorStreamingExchangeService.authenticate(auth);
 
   }
 }

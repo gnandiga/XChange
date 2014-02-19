@@ -23,19 +23,16 @@ package com.xeiam.xchange.coinfloor.streaming;
 
 import com.xeiam.xchange.service.streaming.ExchangeStreamingConfiguration;
 
-
 /**
- * 
  * @author gnandiga
- *
  */
-public class CoinfloorStreamingConfiguration implements ExchangeStreamingConfiguration{
+public class CoinfloorStreamingConfiguration implements ExchangeStreamingConfiguration {
 
   private final int maxReconnectAttempts;
   private final int reconnectWaitTimeInMs;
   private final int timeoutInMs;
   private final boolean isEncryptedChannel;
-  
+
   /**
    * @param maxReconnectAttempts
    * @param reconnectWaitTimeInMs
@@ -54,21 +51,25 @@ public class CoinfloorStreamingConfiguration implements ExchangeStreamingConfigu
 
   @Override
   public int getMaxReconnectAttempts() {
+
     return maxReconnectAttempts;
   }
 
   @Override
   public int getReconnectWaitTimeInMs() {
+
     return reconnectWaitTimeInMs;
   }
 
   @Override
   public int getTimeoutInMs() {
+
     return timeoutInMs;
   }
 
   @Override
   public boolean isEncryptedChannel() {
+
     return isEncryptedChannel;
   }
 

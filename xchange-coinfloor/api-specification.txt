@@ -1,0 +1,145 @@
+Coinfloor Exchange API specification
+====================================
+
+Public API
+
+Documentation
+-------------
+https://github.com/coinfloor/API
+Secure End point: wss://api.coinfloor.co.uk
+
+
+All Error Responses:
+--------------------
+{
+    "tag": <integer>,
+    "error_code": <integer>,
+    "error_msg": <string>
+}
+
+Authenticate :
+--------------
+Request:  {
+             "tag": <integer>,
+             "method": "Authenticate",
+             "user_id": <integer>,
+             "cookie": <string>,
+             "nonce": <string>,
+             "signature": [
+                 <string>,
+                 <string>
+             ]
+         }
+
+GetBalances :
+-------------
+Request:    {
+        "tag": <integer>,
+        "method": "GetBalances"
+    }
+
+Success Reply: {
+                   "tag": <integer>,
+                   "error_code": 0,
+                   "balances": [
+                       {
+                           "asset": <integer>,
+                           "balance": <integer>
+                       },
+
+                   ]
+               }
+
+GetOrders :
+-----------
+Request: {
+        "tag": <integer>,
+        "method": "GetOrders"
+    }
+
+Success Reply: {
+                   "tag": <integer>,
+                   "error_code": 0,
+                   "orders": [
+                       {
+                           "id": <integer>,
+                           "base": <integer>,
+                           "counter": <integer>,
+                           "quantity": <integer>,
+                           "price": <integer>,
+                           "time": <integer>
+                       },
+                   ]
+               }
+
+
+PlaceOrder :
+------------
+Request: {
+        "tag": <integer>,
+        "method": "PlaceOrder",
+        "base": <integer>,
+        "counter": <integer>,
+        "quantity": <integer>,
+        "price": <integer>,
+        "total": <integer>
+    }
+
+Success Reply: {
+               "tag": <integer>,
+               "error_code": 0,
+               "id": <integer>,
+               "time": <integer>,
+               "remaining": <integer>
+           }
+
+CancelOrder :
+--------------
+Request: {
+        "tag": <integer>,
+        "method": "CancelOrder",
+        "id": <integer>
+    }
+
+Success Reply:{
+              "tag": <integer>,
+              "error_code": 0,
+              "base": <integer>,
+              "counter": <integer>,
+              "quantity": <integer>,
+              "price": <integer>
+          }
+
+WatchOrders :
+-------------
+Request:  {
+             "tag": <integer>,
+             "method": "WatchOrders",
+             "base": <integer>,
+             "counter": <integer>,
+             "watch": <boolean>
+         }
+
+Success Reply: {
+               "tag": <integer>,
+               "error_code": 0
+           }
+
+WatchTicker :
+-------------
+Request: {
+             "tag": <integer>,
+             "method": "WatchTicker",
+             "base": <integer>,
+             "counter": <integer>,
+             "watch": <boolean>
+         }
+
+Success Reply: {
+               "tag": <integer>,
+               "error_code": 0
+           }
+
+
+REQUEST LIMITS :
+----------------

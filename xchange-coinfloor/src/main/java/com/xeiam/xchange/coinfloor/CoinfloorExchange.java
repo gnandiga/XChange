@@ -30,32 +30,28 @@ import com.xeiam.xchange.service.streaming.ExchangeStreamingConfiguration;
 import com.xeiam.xchange.service.streaming.StreamingExchangeService;
 
 /**
- *
  * @author gnandiga
- *
  */
-public class CoinfloorExchange extends BaseExchange implements Exchange{
+public class CoinfloorExchange extends BaseExchange implements Exchange {
 
   @Override
   public ExchangeSpecification getDefaultExchangeSpecification() {
+
     ExchangeSpecification exchangeSpecification = new ExchangeSpecification(this.getClass().getCanonicalName());
     exchangeSpecification.setPlainTextUriStreaming("ws://api.coinfloor.co.uk");
     exchangeSpecification.setSslUriStreaming("wss://api.coinfloor.co.uk");
     exchangeSpecification.setHost("coinfloor.co.uk");
     exchangeSpecification.setPort(80);
     exchangeSpecification.setExchangeName("Coinfloor");
-    exchangeSpecification.setExchangeDescription("Coinfloor is a company registered in England and Wales registration number 08493818. "
-          + "Coinfloor allows users to trade Bitcoin. "
-          + "Coinfloor LTD is registered at 200 Aldergate C/O Buckworth Solicitors EC1A 4HD London, United Kingdom.");
+    exchangeSpecification.setExchangeDescription("Coinfloor is a company registered in England and Wales registration number 08493818. " + "Coinfloor allows users to trade Bitcoin. "
+        + "Coinfloor LTD is registered at 200 Aldergate C/O Buckworth Solicitors EC1A 4HD London, United Kingdom.");
 
     return exchangeSpecification;
   }
 
+  @Override
+  public StreamingExchangeService getStreamingExchangeService(ExchangeStreamingConfiguration exchangeStreamingConfiguration) {
 
-    @Override
-    public StreamingExchangeService getStreamingExchangeService(ExchangeStreamingConfiguration exchangeStreamingConfiguration)
-    {
-        return new CoinfloorStreamingExchangeService(getExchangeSpecification(),
-                                    (CoinfloorStreamingConfiguration) exchangeStreamingConfiguration);
-    }
+    return new CoinfloorStreamingExchangeService(getExchangeSpecification(), (CoinfloorStreamingConfiguration) exchangeStreamingConfiguration);
+  }
 }
