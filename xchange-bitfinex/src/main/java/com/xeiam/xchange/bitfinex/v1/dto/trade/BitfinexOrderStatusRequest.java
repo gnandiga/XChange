@@ -19,41 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.xeiam.xchange.mtgox.v1.service.marketdata.polling;
+package com.xeiam.xchange.bitfinex.v1.dto.trade;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 
-import java.io.IOException;
-import java.io.InputStream;
+public class BitfinexOrderStatusRequest {
 
-import org.junit.Ignore;
-import org.junit.Test;
+  @JsonProperty("request")
+  protected String request;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xeiam.xchange.mtgox.v1.dto.marketdata.MtGoxTrade;
+  @JsonProperty("nonce")
+  protected String nonce;
 
-/**
- * Test MtGoxTrade[] JSON parsing
- * 
- * @deprecated Use V2! This will be removed in 1.8.0+
- */
-@Deprecated
-@Ignore
-public class TradesJSONTest {
+  @JsonProperty("order_id")
+  @JsonRawValue
+  private int orderId;
 
-  @Test
-  public void testUnmarshal() throws IOException {
+  /**
+   * Constructor
+   * 
+   * @param nonce
+   * @param orderId
+   */
+  public BitfinexOrderStatusRequest(String nonce, int orderId) {
 
-    // Read in the JSON from the example resources
-    InputStream is = TradesJSONTest.class.getResourceAsStream("/v1/marketdata/polling/example-trades-data.json");
-
-    // Use Jackson to parse it
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    MtGoxTrade[] mtGoxTrades = mapper.readValue(is, MtGoxTrade[].class);
-
-    // Verify that the example data was unmarshalled correctly
-    assertThat(mtGoxTrades[0].getPriceInt()).isEqualTo(19399989L);
+    this.request = "/v1/order/status";
+    this.orderId = orderId;
+    this.nonce = nonce;
   }
+
+  public String getOrderId() {
+
+    return String.valueOf(orderId);
+  }
+
 }
