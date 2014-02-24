@@ -42,12 +42,17 @@
  */
 package com.xeiam.xchange.coinfloor.streaming;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xeiam.xchange.ExchangeException;
 import com.xeiam.xchange.service.streaming.ExchangeEvent;
@@ -75,7 +80,40 @@ public class CoinfloorEventListener extends ExchangeEventListener {
   @Override
   public void handleEvent(ExchangeEvent event) throws ExchangeException {
 
-    log.debug("Received event: ", event);
+    switch(event.getEventType()){
+      case CONNECT:
+        log.debug("Coinfloor connected");
+        addToEventQueue(event);
+        break;
+      case DISCONNECT:
+        log.debug("Coinfloor disconnected");
+        addToEventQueue(event);
+        break;
+      case MESSAGE:
+        try {
+          Map<String, Object> rawJSON = streamObjectMapper.readValue(event.getData(), 
+                                                                      new TypeReference<Map<String, Object>>() {});
+          
+          
+          
+        } catch (JsonParseException e) {
+          log.error("Error parsing returned JSON", e);
+        } catch (JsonMappingException e) {
+          log.error("Error parsing returned JSON", e);
+        } catch (IOException e) {
+          log.error("Error parsing returned JSON", e);
+        }
+        break;
+    }
+    log.debug("Received event: " + event.getData());
   }
 
+  private void addToEventQueue(ExchangeEvent event) {
+
+    try {
+      consumerEventQueue.put(event);
+    } catch (InterruptedException e) {
+      throw new ExchangeException("InterruptedException!", e);
+    }
+  }
 }

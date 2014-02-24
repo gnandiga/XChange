@@ -40,12 +40,11 @@ public class CoinfloorAuthenticationRequest {
 
   List<String> signature;
 
-  public CoinfloorAuthenticationRequest(String user_id, String cookie) {
+  public CoinfloorAuthenticationRequest(String userId, String cookie) {
 
-    this.userId = user_id;
+    this.userId = userId;
     this.cookie = cookie;
     this.nonce = CoinfloorUtils.getNonce();
-
     this.signature = CoinfloorUtils.getSignatures();
   }
 

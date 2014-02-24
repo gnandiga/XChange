@@ -21,10 +21,16 @@
  */
 package com.xeiam.xchange.examples.coinfloor;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import com.xeiam.xchange.Exchange;
 import com.xeiam.xchange.coinfloor.dto.streaming.CoinfloorAuthenticationRequest;
 import com.xeiam.xchange.coinfloor.streaming.CoinfloorStreamingConfiguration;
 import com.xeiam.xchange.coinfloor.streaming.CoinfloorStreamingExchangeService;
+import com.xeiam.xchange.service.streaming.ExchangeEvent;
 import com.xeiam.xchange.service.streaming.ExchangeStreamingConfiguration;
 import com.xeiam.xchange.service.streaming.StreamingExchangeService;
 
@@ -33,13 +39,52 @@ import com.xeiam.xchange.service.streaming.StreamingExchangeService;
  */
 public class CoinfloorDemo {
 
-  public static void main(String[] args) {
+  
+  public class CoinfloorDataRunnable implements Runnable {
+
+    private StreamingExchangeService streamingExchangeService;
+
+    /**
+     * Constructor 
+     * 
+     * @param streamingExchangeService
+     */
+    public CoinfloorDataRunnable(StreamingExchangeService streamingExchangeService) {
+      this.streamingExchangeService = streamingExchangeService;
+    }
+
+    @Override
+    public void run() {
+      try {
+        while(true) {
+          ExchangeEvent exchangeEvent = streamingExchangeService.getNextEvent();
+          
+          switch(exchangeEvent.getEventType())
+          {
+            case CONNECT:
+              System.out.println("Connected!");
+              break;
+            case TICKER: 
+              break;
+            
+            default: 
+              break;
+          }
+        }
+      }catch(InterruptedException e){
+        System.out.println("ERROR in Runnable!!!");
+      }
+    }
+
+  }
+
+  public static void main(String[] args) throws InterruptedException, ExecutionException {
 
     CoinfloorDemo coinfloorDemo = new CoinfloorDemo();
     coinfloorDemo.start();
   }
 
-  public void start() {
+  public void start() throws InterruptedException, ExecutionException {
 
     Exchange coinfloorExchange = CoinfloorExampleUtils.createExchange();
 
@@ -48,11 +93,22 @@ public class CoinfloorDemo {
     StreamingExchangeService streamingExchangeService = coinfloorExchange.getStreamingExchangeService(exchangeStreamingConfiguration);
 
     streamingExchangeService.connect();
+    
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    Future<?> coinfloorFuture = executorService.submit(new CoinfloorDataRunnable(streamingExchangeService));
 
-    CoinfloorStreamingExchangeService coinfloorStreamingExchangeService = (CoinfloorStreamingExchangeService) streamingExchangeService;
-    CoinfloorAuthenticationRequest auth = new CoinfloorAuthenticationRequest("***", "***************");
-
-    coinfloorStreamingExchangeService.authenticate(auth);
+//    CoinfloorStreamingExchangeService coinfloorStreamingExchangeService = (CoinfloorStreamingExchangeService) streamingExchangeService;
+//    CoinfloorAuthenticationRequest auth = new CoinfloorAuthenticationRequest("163", "X1UC55QE4WXNZMKfP4FfCsxKVfw=");
+//
+//    coinfloorStreamingExchangeService.authenticate(auth);
+//    
+    
+    coinfloorFuture.get();
+    executorService.shutdown();
+    
+    System.out.println(Thread.currentThread().getName() + ": Disconnecting...");
+    streamingExchangeService.disconnect();
+    
 
   }
 }
