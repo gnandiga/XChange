@@ -39,14 +39,14 @@ import com.xeiam.xchange.service.streaming.StreamingExchangeService;
  */
 public class CoinfloorDemo {
 
-  
+
   public class CoinfloorDataRunnable implements Runnable {
 
     private StreamingExchangeService streamingExchangeService;
 
     /**
-     * Constructor 
-     * 
+     * Constructor
+     *
      * @param streamingExchangeService
      */
     public CoinfloorDataRunnable(StreamingExchangeService streamingExchangeService) {
@@ -58,16 +58,16 @@ public class CoinfloorDemo {
       try {
         while(true) {
           ExchangeEvent exchangeEvent = streamingExchangeService.getNextEvent();
-          
+
           switch(exchangeEvent.getEventType())
           {
             case CONNECT:
               System.out.println("Connected!");
               break;
-            case TICKER: 
+            case TICKER:
               break;
-            
-            default: 
+
+            default:
               break;
           }
         }
@@ -93,22 +93,16 @@ public class CoinfloorDemo {
     StreamingExchangeService streamingExchangeService = coinfloorExchange.getStreamingExchangeService(exchangeStreamingConfiguration);
 
     streamingExchangeService.connect();
-    
+
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     Future<?> coinfloorFuture = executorService.submit(new CoinfloorDataRunnable(streamingExchangeService));
 
-//    CoinfloorStreamingExchangeService coinfloorStreamingExchangeService = (CoinfloorStreamingExchangeService) streamingExchangeService;
-//    CoinfloorAuthenticationRequest auth = new CoinfloorAuthenticationRequest("163", "X1UC55QE4WXNZMKfP4FfCsxKVfw=");
-//
-//    coinfloorStreamingExchangeService.authenticate(auth);
-//    
-    
     coinfloorFuture.get();
     executorService.shutdown();
-    
+
     System.out.println(Thread.currentThread().getName() + ": Disconnecting...");
     streamingExchangeService.disconnect();
-    
+
 
   }
 }
