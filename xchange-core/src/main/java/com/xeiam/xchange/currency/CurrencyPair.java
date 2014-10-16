@@ -1,24 +1,3 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.currency;
 
 /**
@@ -39,6 +18,7 @@ public class CurrencyPair {
   public static final CurrencyPair EUR_USD = new CurrencyPair(Currencies.EUR);
   public static final CurrencyPair GBP_USD = new CurrencyPair(Currencies.GBP);
   public static final CurrencyPair USD_JPY = new CurrencyPair(Currencies.USD, Currencies.JPY);
+  public static final CurrencyPair JPY_USD = new CurrencyPair(Currencies.JPY, Currencies.USD);
   public static final CurrencyPair USD_CHF = new CurrencyPair(Currencies.USD, Currencies.CHF);
   public static final CurrencyPair USD_AUD = new CurrencyPair(Currencies.USD, Currencies.AUD);
   public static final CurrencyPair USD_CAD = new CurrencyPair(Currencies.USD, Currencies.CAD);
@@ -119,43 +99,93 @@ public class CurrencyPair {
 
   public static final CurrencyPair XVN_XRP = new CurrencyPair(Currencies.XVN, Currencies.XRP);
 
+  // start of extra ANX supported pair
+  // BTC
+  public static final CurrencyPair BTC_XDC = new CurrencyPair(Currencies.BTC, Currencies.XDC);
+  public static final CurrencyPair BTC_PPC = new CurrencyPair(Currencies.BTC, Currencies.PPC);
+
+  // LTC
+  public static final CurrencyPair LTC_HKD = new CurrencyPair(Currencies.LTC, Currencies.HKD);
+  public static final CurrencyPair LTC_XDC = new CurrencyPair(Currencies.LTC, Currencies.XDC);
+  public static final CurrencyPair LTC_NMC = new CurrencyPair(Currencies.LTC, Currencies.NMC);
+  public static final CurrencyPair LTC_PPC = new CurrencyPair(Currencies.LTC, Currencies.PPC);
+
+  // DOGE
+  public static final CurrencyPair DOGE_HKD = new CurrencyPair(Currencies.DOGE, Currencies.HKD);
+  public static final CurrencyPair DOGE_BTC = new CurrencyPair(Currencies.DOGE, Currencies.BTC);
+  public static final CurrencyPair DOGE_LTC = new CurrencyPair(Currencies.DOGE, Currencies.LTC);
+  public static final CurrencyPair DOGE_NMC = new CurrencyPair(Currencies.DOGE, Currencies.NMC);
+  public static final CurrencyPair DOGE_PPC = new CurrencyPair(Currencies.DOGE, Currencies.PPC);
+  public static final CurrencyPair DOGE_USD = new CurrencyPair(Currencies.DOGE, Currencies.USD);
+
+  public static final CurrencyPair XDC_HKD = new CurrencyPair(Currencies.XDC, Currencies.HKD);
+  public static final CurrencyPair XDC_LTC = new CurrencyPair(Currencies.XDC, Currencies.LTC);
+  public static final CurrencyPair XDC_NMC = new CurrencyPair(Currencies.XDC, Currencies.NMC);
+  public static final CurrencyPair XDC_PPC = new CurrencyPair(Currencies.XDC, Currencies.PPC);
+  public static final CurrencyPair XDC_USD = new CurrencyPair(Currencies.XDC, Currencies.USD);
+
+  // NMC
+  public static final CurrencyPair NMC_HKD = new CurrencyPair(Currencies.NMC, Currencies.HKD);
+  public static final CurrencyPair NMC_XDC = new CurrencyPair(Currencies.NMC, Currencies.XDC);
+  public static final CurrencyPair NMC_PPC = new CurrencyPair(Currencies.NMC, Currencies.PPC);
+
+  // PPC
+  public static final CurrencyPair PPC_HKD = new CurrencyPair(Currencies.PPC, Currencies.HKD);
+  public static final CurrencyPair PPC_XDC = new CurrencyPair(Currencies.PPC, Currencies.XDC);
+  public static final CurrencyPair PPC_NMC = new CurrencyPair(Currencies.PPC, Currencies.NMC);
+  // end
+
   // not real currencies, but tradable commodities (GH/s)
   public static final CurrencyPair GHs_BTC = new CurrencyPair(Currencies.GHs, Currencies.BTC);
   public static final CurrencyPair GHs_NMC = new CurrencyPair(Currencies.GHs, Currencies.NMC);
 
-  public final String baseCurrency;
-  public final String counterCurrency;
+  public static final CurrencyPair CNC_BTC = new CurrencyPair(Currencies.CNC, Currencies.BTC);
+
+  public static final CurrencyPair WDC_USD = new CurrencyPair(Currencies.WDC, Currencies.USD);
+  public static final CurrencyPair WDC_BTC = new CurrencyPair(Currencies.WDC, Currencies.BTC);
+  public static final CurrencyPair DVC_BTC = new CurrencyPair(Currencies.DVC, Currencies.BTC);
+
+  public static final CurrencyPair DGC_BTC = new CurrencyPair(Currencies.DGC, Currencies.BTC);
+
+  public static final CurrencyPair UTC_USD = new CurrencyPair(Currencies.UTC, Currencies.USD);
+  public static final CurrencyPair UTC_EUR = new CurrencyPair(Currencies.UTC, Currencies.EUR);
+  public static final CurrencyPair UTC_BTC = new CurrencyPair(Currencies.UTC, Currencies.BTC);
+  public static final CurrencyPair UTC_LTC = new CurrencyPair(Currencies.UTC, Currencies.LTC);
+
+  public final String baseSymbol;
+  public final String counterSymbol;
 
   /**
    * <p>
    * Reduced constructor using the global reserve currency symbol (USD) as the default counter
    * </p>
    * 
-   * @param baseCurrency The base symbol (single unit)
+   * @param baseSymbol The base symbol is what you're wanting to buy/sell
    */
-  public CurrencyPair(String baseCurrency) {
+  public CurrencyPair(String baseSymbol) {
 
-    this(baseCurrency, Currencies.USD);
+    this(baseSymbol, Currencies.USD);
   }
 
   /**
    * <p>
    * Full constructor
    * </p>
+   * In general the CurrencyPair.base is what you're wanting to buy/sell. The CurrencyPair.counter is what currency you want to use to pay/receive for your purchase/sale.
    * 
-   * @param baseCurrency The base symbol (single unit)
-   * @param counterCurrency The counter symbol (multiple units)
+   * @param baseSymbol The base symbol is what you're wanting to buy/sell
+   * @param counterSymbol The counter symbol is what currency you want to use to pay/receive for your purchase/sale.
    */
-  public CurrencyPair(String baseCurrency, String counterCurrency) {
+  public CurrencyPair(String baseSymbol, String counterSymbol) {
 
-    this.baseCurrency = baseCurrency;
-    this.counterCurrency = counterCurrency;
+    this.baseSymbol = baseSymbol;
+    this.counterSymbol = counterSymbol;
   }
 
   @Override
   public String toString() {
 
-    return baseCurrency + "/" + counterCurrency;
+    return baseSymbol + "/" + counterSymbol;
   }
 
   @Override
@@ -163,8 +193,8 @@ public class CurrencyPair {
 
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((baseCurrency == null) ? 0 : baseCurrency.hashCode());
-    result = prime * result + ((counterCurrency == null) ? 0 : counterCurrency.hashCode());
+    result = prime * result + ((baseSymbol == null) ? 0 : baseSymbol.hashCode());
+    result = prime * result + ((counterSymbol == null) ? 0 : counterSymbol.hashCode());
     return result;
   }
 
@@ -181,20 +211,20 @@ public class CurrencyPair {
       return false;
     }
     CurrencyPair other = (CurrencyPair) obj;
-    if (baseCurrency == null) {
-      if (other.baseCurrency != null) {
+    if (baseSymbol == null) {
+      if (other.baseSymbol != null) {
         return false;
       }
     }
-    else if (!baseCurrency.equals(other.baseCurrency)) {
+    else if (!baseSymbol.equals(other.baseSymbol)) {
       return false;
     }
-    if (counterCurrency == null) {
-      if (other.counterCurrency != null) {
+    if (counterSymbol == null) {
+      if (other.counterSymbol != null) {
         return false;
       }
     }
-    else if (!counterCurrency.equals(other.counterCurrency)) {
+    else if (!counterSymbol.equals(other.counterSymbol)) {
       return false;
     }
     return true;

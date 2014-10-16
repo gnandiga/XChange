@@ -1,29 +1,6 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.coinbase.dto.account;
 
 import java.util.List;
-
-import org.joda.money.BigMoney;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -32,8 +9,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.xeiam.xchange.coinbase.dto.CoinbaseBaseResponse;
 import com.xeiam.xchange.coinbase.dto.auth.CoinbaseOAuth;
+import com.xeiam.xchange.coinbase.dto.marketdata.CoinbaseMoney;
 import com.xeiam.xchange.coinbase.dto.merchant.CoinbaseMerchant;
-import com.xeiam.xchange.coinbase.dto.serialization.CoinbaseBigMoneyDeserializer;
+import com.xeiam.xchange.coinbase.dto.serialization.CoinbaseMoneyDeserializer;
 
 /**
  * @author jamespedwards42
@@ -133,7 +111,7 @@ public class CoinbaseUser extends CoinbaseBaseResponse {
   }
 
   @JsonIgnore
-  public BigMoney getBalance() {
+  public CoinbaseMoney getBalance() {
 
     return user.getBalance();
   }
@@ -163,13 +141,13 @@ public class CoinbaseUser extends CoinbaseBaseResponse {
   }
 
   @JsonIgnore
-  public BigMoney getBuyLimit() {
+  public CoinbaseMoney getBuyLimit() {
 
     return user.getBuyLimit();
   }
 
   @JsonIgnore
-  public BigMoney getSellLimit() {
+  public CoinbaseMoney getSellLimit() {
 
     return user.getSellLimit();
   }
@@ -230,22 +208,22 @@ public class CoinbaseUser extends CoinbaseBaseResponse {
     private final String referrerId;
     @JsonProperty("time_zone")
     private String timeZone;
-    private final BigMoney balance;
+    private final CoinbaseMoney balance;
     @JsonProperty("native_currency")
     private String nativeCurrency;
     private final CoinbaseBuySellLevel buyLevel;
     private final CoinbaseBuySellLevel sellLevel;
-    private final BigMoney buyLimit;
-    private final BigMoney sellLimit;
+    private final CoinbaseMoney buyLimit;
+    private final CoinbaseMoney sellLimit;
     @JsonProperty("pin")
     private String pin;
     private final CoinbaseMerchant merchant;
 
     private CoinbaseUserInfo(@JsonProperty("id") final String id, @JsonProperty("email") final String email, @JsonProperty("name") final String name, @JsonProperty("password") final String password,
         @JsonProperty("receive_address") final String receiveAddress, @JsonProperty("referrer_id") final String referrerId, @JsonProperty("time_zone") final String timeZone,
-        @JsonProperty("balance") @JsonDeserialize(using = CoinbaseBigMoneyDeserializer.class) final BigMoney balance, @JsonProperty("native_currency") final String nativeCurrency,
+        @JsonProperty("balance") @JsonDeserialize(using = CoinbaseMoneyDeserializer.class) final CoinbaseMoney balance, @JsonProperty("native_currency") final String nativeCurrency,
         @JsonProperty("buy_level") final CoinbaseBuySellLevel buyLevel, @JsonProperty("sell_level") final CoinbaseBuySellLevel sellLevel, @JsonProperty("buy_limit") @JsonDeserialize(
-            using = CoinbaseBigMoneyDeserializer.class) final BigMoney buyLimit, @JsonProperty("sell_limit") @JsonDeserialize(using = CoinbaseBigMoneyDeserializer.class) final BigMoney sellLimit,
+            using = CoinbaseMoneyDeserializer.class) final CoinbaseMoney buyLimit, @JsonProperty("sell_limit") @JsonDeserialize(using = CoinbaseMoneyDeserializer.class) final CoinbaseMoney sellLimit,
         @JsonProperty("pin") final String pin, @JsonProperty("merchant") final CoinbaseMerchant merchant) {
 
       this.id = id;
@@ -337,7 +315,7 @@ public class CoinbaseUser extends CoinbaseBaseResponse {
     }
 
     @JsonIgnore
-    public BigMoney getBalance() {
+    public CoinbaseMoney getBalance() {
 
       return balance;
     }
@@ -365,13 +343,13 @@ public class CoinbaseUser extends CoinbaseBaseResponse {
     }
 
     @JsonIgnore
-    public BigMoney getBuyLimit() {
+    public CoinbaseMoney getBuyLimit() {
 
       return buyLimit;
     }
 
     @JsonIgnore
-    public BigMoney getSellLimit() {
+    public CoinbaseMoney getSellLimit() {
 
       return sellLimit;
     }

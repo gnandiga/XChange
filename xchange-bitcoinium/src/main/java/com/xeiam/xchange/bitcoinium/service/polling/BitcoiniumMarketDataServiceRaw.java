@@ -1,24 +1,3 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.bitcoinium.service.polling;
 
 import java.io.IOException;
@@ -31,7 +10,6 @@ import com.xeiam.xchange.bitcoinium.BitcoiniumUtils;
 import com.xeiam.xchange.bitcoinium.dto.marketdata.BitcoiniumOrderbook;
 import com.xeiam.xchange.bitcoinium.dto.marketdata.BitcoiniumTicker;
 import com.xeiam.xchange.bitcoinium.dto.marketdata.BitcoiniumTickerHistory;
-import com.xeiam.xchange.bitcoinium.service.BitcoiniumBaseService;
 import com.xeiam.xchange.utils.Assert;
 
 /**
@@ -42,13 +20,13 @@ import com.xeiam.xchange.utils.Assert;
  * <li>Provides access to various market data values</li>
  * </ul>
  */
-public class BitcoiniumMarketDataServiceRaw extends BitcoiniumBaseService {
+public class BitcoiniumMarketDataServiceRaw extends BitcoiniumBasePollingService {
 
   private final Bitcoinium bitcoinium;
 
   /**
    * Constructor
-   * 
+   *
    * @param exchangeSpecification The {@link ExchangeSpecification}
    */
   public BitcoiniumMarketDataServiceRaw(ExchangeSpecification exchangeSpecification) {
@@ -64,11 +42,9 @@ public class BitcoiniumMarketDataServiceRaw extends BitcoiniumBaseService {
    * @return a Bitcoinium Ticker object
    * @throws IOException
    */
-  public BitcoiniumTicker getBitcoiniumTicker(String tradableIdentifier, String currency, String exchange) throws IOException {
+  public BitcoiniumTicker getBitcoiniumTicker(String tradableIdentifier, String currency) throws IOException {
 
-    String pair = BitcoiniumUtils.createCurrencyPairString(tradableIdentifier, currency, exchange);
-
-    verify(pair);
+    String pair = BitcoiniumUtils.createCurrencyPairString(tradableIdentifier, currency);
 
     // Request data
     BitcoiniumTicker bitcoiniumTicker = bitcoinium.getTicker(pair, exchangeSpecification.getApiKey());
@@ -85,11 +61,10 @@ public class BitcoiniumMarketDataServiceRaw extends BitcoiniumBaseService {
    * @return
    * @throws IOException
    */
-  public BitcoiniumTickerHistory getBitcoiniumTickerHistory(String tradableIdentifier, String currency, String exchange, String timeWindow) throws IOException {
+  public BitcoiniumTickerHistory getBitcoiniumTickerHistory(String tradableIdentifier, String currency, String timeWindow) throws IOException {
 
-    String pair = BitcoiniumUtils.createCurrencyPairString(tradableIdentifier, currency, exchange);
+    String pair = BitcoiniumUtils.createCurrencyPairString(tradableIdentifier, currency);
 
-    verify(pair);
     verifyTimeWindow(timeWindow);
 
     // Request data
@@ -102,35 +77,24 @@ public class BitcoiniumMarketDataServiceRaw extends BitcoiniumBaseService {
    * @param tradableIdentifier
    * @param currency
    * @param exchange
-   * @param pricewindow - The width of the Orderbook as a percentage plus and minus the current price. Value can be from set: { 2p, 5p, 10p, 20p, 50p, 100p }
+   * @param orderbookwindow - The width of the Orderbook as a percentage plus and minus the current price. Value can be from set: { 2p, 5p, 10p, 20p, 50p, 100p }
    * @return
    */
-  public BitcoiniumOrderbook getBitcoiniumOrderbook(String tradableIdentifier, String currency, String exchange, String pricewindow) throws IOException {
+  public BitcoiniumOrderbook getBitcoiniumOrderbook(String tradableIdentifier, String currency, String orderbookwindow) throws IOException {
 
-    String pair = BitcoiniumUtils.createCurrencyPairString(tradableIdentifier, currency, exchange);
+    String pair = BitcoiniumUtils.createCurrencyPairString(tradableIdentifier, currency);
 
-    verify(pair);
-    verifyPriceWindow(pricewindow);
+    verifyPriceWindow(orderbookwindow);
 
     // Request data
-    BitcoiniumOrderbook bitcoiniumDepth = bitcoinium.getDepth(pair, pricewindow, exchangeSpecification.getApiKey());
+    BitcoiniumOrderbook bitcoiniumDepth = bitcoinium.getDepth(pair, orderbookwindow, exchangeSpecification.getApiKey());
 
     return bitcoiniumDepth;
   }
 
   /**
    * verify
-   * 
-   * @param pair
-   */
-  private void verify(String pair) {
-
-    Assert.isTrue(BitcoiniumUtils.isValidCurrencyPair(pair), pair + " is not a valid currency pair!");
-  }
-
-  /**
-   * verify
-   * 
+   *
    * @param pair
    */
   private void verifyPriceWindow(String priceWindow) {
@@ -140,7 +104,7 @@ public class BitcoiniumMarketDataServiceRaw extends BitcoiniumBaseService {
 
   /**
    * verify
-   * 
+   *
    * @param pair
    */
   private void verifyTimeWindow(String timeWindow) {

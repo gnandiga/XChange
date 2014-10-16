@@ -1,41 +1,22 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.bter.service.polling;
 
-import com.xeiam.xchange.ExchangeException;
+import java.io.IOException;
+import java.math.BigDecimal;
+
 import com.xeiam.xchange.ExchangeSpecification;
-import com.xeiam.xchange.bter.BTERAdapters;
+import com.xeiam.xchange.bter.BTERAuthenticated;
 import com.xeiam.xchange.bter.BTERUtils;
-import com.xeiam.xchange.bter.dto.trade.*;
+import com.xeiam.xchange.bter.dto.BTERBaseResponse;
+import com.xeiam.xchange.bter.dto.BTEROrderType;
+import com.xeiam.xchange.bter.dto.trade.BTEROpenOrders;
+import com.xeiam.xchange.bter.dto.trade.BTEROrderStatus;
+import com.xeiam.xchange.bter.dto.trade.BTERPlaceOrderReturn;
+import com.xeiam.xchange.bter.dto.trade.BTERTradeHistoryReturn;
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.trade.LimitOrder;
-import com.xeiam.xchange.dto.trade.OpenOrders;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-public class BTERPollingTradeServiceRaw extends BTERBasePollingService {
+public class BTERPollingTradeServiceRaw extends BTERBasePollingService<BTERAuthenticated> {
 
   /**
    * Constructor
@@ -44,52 +25,88 @@ public class BTERPollingTradeServiceRaw extends BTERBasePollingService {
    */
   public BTERPollingTradeServiceRaw(ExchangeSpecification exchangeSpecification) {
 
-    super(exchangeSpecification);
+    super(BTERAuthenticated.class, exchangeSpecification);
   }
 
-  public String placeBTERLimitOrder(LimitOrder limitOrder) throws IOException {
+  /**
+   * Submits a Limit Order to be executed on the BTER Exchange for the desired
+   * market defined by {@code CurrencyPair}. WARNING - BTER will return true
+   * regardless of whether or not an order actually gets created. The reason
+   * for this is that orders are simply submitted to a queue in their
+   * back-end. One example for why an order might not get created is because
+   * there are insufficient funds. The best attempt you can make to confirm
+   * that the order was created is to poll {@link #getBTEROpenOrders}. However
+   * if the order is created and executed before it is caught in its open
+   * state from calling {@link #getBTEROpenOrders} then the only way to
+   * confirm would be confirm the expected difference in funds available for
+   * your account.
+   * 
+   * @param limitOrder
+   * @return boolean Used to determine if the order request was submitted
+   *         successfully.
+   * @throws IOException
+   */
+  public boolean placeBTERLimitOrder(LimitOrder limitOrder) throws IOException {
 
-    String pair = String.format("%s_%s", limitOrder.getTradableIdentifier(), limitOrder.getTransactionCurrency()).toLowerCase();
-    BTEROrder.Type type = limitOrder.getType() == Order.OrderType.BID ? BTEROrder.Type.buy : BTEROrder.Type.sell;
-    BTERPlaceOrderReturn ret = bterAuthenticated.Trade(apiKey, signatureCreator, nextNonce(), pair, type, limitOrder.getLimitPrice().getAmount(), limitOrder.getTradableAmount());
+    BTEROrderType type = (limitOrder.getType() == Order.OrderType.BID) ? BTEROrderType.BUY : BTEROrderType.SELL;
 
-    return ret.getOrderId();
+    return placeBTERLimitOrder(limitOrder.getCurrencyPair(), type, limitOrder.getLimitPrice(), limitOrder.getTradableAmount());
   }
 
-  public OpenOrders getBTEROpenOrders() {
+  /**
+   * Submits a Limit Order to be executed on the BTER Exchange for the desired
+   * market defined by {@code currencyPair}. WARNING - BTER will return true
+   * regardless of whether or not an order actually gets created. The reason
+   * for this is that orders are simply submitted to a queue in their
+   * back-end. One example for why an order might not get created is because
+   * there are insufficient funds. The best attempt you can make to confirm
+   * that the order was created is to poll {@link #getBTEROpenOrders}. However
+   * if the order is created and executed before it is caught in its open
+   * state from calling {@link #getBTEROpenOrders} then the only way to
+   * confirm would be confirm the expected difference in funds available for
+   * your account.
+   * 
+   * @param currencyPair
+   * @param orderType
+   * @param rate
+   * @param amount
+   * @return boolean Used to determine if the order request was submitted
+   *         successfully.
+   * @throws IOException
+   */
+  public boolean placeBTERLimitOrder(CurrencyPair currencyPair, BTEROrderType orderType, BigDecimal rate, BigDecimal amount) throws IOException {
 
-    // get the summaries of the open orders
-    BTEROpenOrdersReturn bterOpenOrdersReturn = bterAuthenticated.getOpenOrders(apiKey, signatureCreator, nextNonce());
+    String pair = String.format("%s_%s", currencyPair.baseSymbol, currencyPair.counterSymbol).toLowerCase();
+    BTERPlaceOrderReturn orderId = bter.placeOrder(pair, orderType, rate, amount, apiKey, signatureCreator, nextNonce());
 
-    if (!bterOpenOrdersReturn.isResult()) {
-      throw new ExchangeException("Failed to retrieve open orders because " + bterOpenOrdersReturn.getMsg());
-    }
-
-    List<LimitOrder> openOrders = new ArrayList<LimitOrder>();
-
-    // get the detailed information of each open order...
-    for(BTEROpenOrderSummary orderSummary : bterOpenOrdersReturn.getOrders()) {
-
-      openOrders.add(getBTEROrderStatus(orderSummary.getId()));
-    }
-
-    return new OpenOrders(openOrders);
+    return handleResponse(orderId).isResult();
   }
 
-  public LimitOrder getBTEROrderStatus(String orderId) {
+  public boolean cancelOrder(String orderId) throws IOException {
 
-    BTEROrderStatusReturn orderStatusReturn = bterAuthenticated.getOrderStatus(apiKey, signatureCreator, nextNonce(), orderId);
+    BTERBaseResponse cancelOrderResult = bter.cancelOrder(orderId, apiKey, signatureCreator, nextNonce());
 
-    if (!orderStatusReturn.isResult()) {
-      throw new ExchangeException("Failed to retrieve order status because " + orderStatusReturn.getMsg());
-    }
-
-    BTEROrderStatus orderStatus = orderStatusReturn.getBterOrderStatus();
-
-    CurrencyPair currencyPair = BTERUtils.parseCurrencyPairString(orderStatus.getTradePair());
-
-    return BTERAdapters.adaptOrder(orderStatus.getAmount(), orderStatus.getRate(), currencyPair.baseCurrency, currencyPair.counterCurrency,
-                                   orderStatus.getType(),orderId);
+    return handleResponse(cancelOrderResult).isResult();
   }
 
+  public BTEROpenOrders getBTEROpenOrders() throws IOException {
+
+    BTEROpenOrders bterOpenOrdersReturn = bter.getOpenOrders(apiKey, signatureCreator, nextNonce());
+
+    return handleResponse(bterOpenOrdersReturn);
+  }
+
+  public BTEROrderStatus getBTEROrderStatus(String orderId) throws IOException {
+
+    BTEROrderStatus orderStatus = bter.getOrderStatus(orderId, apiKey, signatureCreator, nextNonce());
+
+    return handleResponse(orderStatus);
+  }
+
+  public BTERTradeHistoryReturn getBTERTradeHistory(CurrencyPair currencyPair) throws IOException {
+
+    BTERTradeHistoryReturn bterTradeHistoryReturn = bter.getUserTradeHistory(apiKey, signatureCreator, nextNonce(), BTERUtils.toPairString(currencyPair));
+
+    return handleResponse(bterTradeHistoryReturn);
+  }
 }

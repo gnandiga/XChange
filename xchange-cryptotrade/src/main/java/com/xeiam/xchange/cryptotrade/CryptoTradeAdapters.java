@@ -1,40 +1,32 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.cryptotrade;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
-import org.joda.money.BigMoney;
-import org.joda.money.CurrencyUnit;
-import org.joda.money.IllegalCurrencyException;
-
-import com.xeiam.xchange.cryptotrade.dto.account.CryptoTradeAccountInfoReturn;
-import com.xeiam.xchange.currency.MoneyUtils;
+import com.xeiam.xchange.cryptotrade.dto.CryptoTradeOrderType;
+import com.xeiam.xchange.cryptotrade.dto.account.CryptoTradeAccountInfo;
+import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradeDepth;
+import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradePublicOrder;
+import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradePublicTrade;
+import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradeTicker;
+import com.xeiam.xchange.cryptotrade.dto.trade.CryptoTradeOrder;
+import com.xeiam.xchange.cryptotrade.dto.trade.CryptoTradeOrders;
+import com.xeiam.xchange.cryptotrade.dto.trade.CryptoTradeTrades;
+import com.xeiam.xchange.cryptotrade.dto.trade.CryptoTradeTrades.CryptoTradeTrade;
+import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order.OrderType;
 import com.xeiam.xchange.dto.account.AccountInfo;
+import com.xeiam.xchange.dto.marketdata.OrderBook;
+import com.xeiam.xchange.dto.marketdata.Ticker;
+import com.xeiam.xchange.dto.marketdata.Ticker.TickerBuilder;
+import com.xeiam.xchange.dto.marketdata.Trade;
+import com.xeiam.xchange.dto.marketdata.Trades;
+import com.xeiam.xchange.dto.marketdata.Trades.TradeSortType;
 import com.xeiam.xchange.dto.trade.LimitOrder;
+import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 
 /**
@@ -42,76 +34,125 @@ import com.xeiam.xchange.dto.trade.Wallet;
  */
 public final class CryptoTradeAdapters {
 
-  /**
-   * private Constructor
-   */
   private CryptoTradeAdapters() {
 
   }
 
-  /**
-   * Adapts a cryptoTradeOrders to a LimitOrder
-   * 
-   * @param amount
-   * @param price
-   * @param currency
-   * @param orderTypeString
-   * @param id
-   * @return
-   */
-  public static LimitOrder adaptOrder(BigDecimal amount, BigDecimal price, String tradableIdentifier, String currency, String orderTypeString, String id) {
+  public static LimitOrder adaptOrder(CryptoTradePublicOrder order, CurrencyPair currencyPair, OrderType orderType) {
 
-    // place a limit order
-    OrderType orderType = orderTypeString.equalsIgnoreCase("bid") ? OrderType.BID : OrderType.ASK;
-    BigMoney limitPrice;
-    limitPrice = MoneyUtils.parse(currency + " " + price);
-
-    return new LimitOrder(orderType, amount, tradableIdentifier, currency, "", null, limitPrice);
+    return new LimitOrder(orderType, order.getAmount(), currencyPair, "", null, order.getPrice());
   }
 
-  /**
-   * Adapts a List of cryptoTradeOrders to a List of LimitOrders
-   * 
-   * @param cryptoTradeOrders
-   * @param currency
-   * @param orderType
-   * @param id
-   * @return
-   */
-  public static List<LimitOrder> adaptOrders(List<BigDecimal[]> cryptoTradeOrders, String tradableIdentifier, String currency, String orderType, String id) {
+  public static List<LimitOrder> adaptOrders(List<CryptoTradePublicOrder> cryptoTradeOrders, CurrencyPair currencyPair, OrderType orderType) {
 
     List<LimitOrder> limitOrders = new ArrayList<LimitOrder>();
 
-    // Bid orderbook is reversed order. Insert at index 0 instead of
-    for (BigDecimal[] bterOrder : cryptoTradeOrders) {
-      // appending
-      if (orderType.equalsIgnoreCase("bid")) {
-        limitOrders.add(0, adaptOrder(bterOrder[0], bterOrder[1], tradableIdentifier, currency, orderType, id));
-      }
-      else {
-        limitOrders.add(adaptOrder(bterOrder[0], bterOrder[1], tradableIdentifier, currency, orderType, id));
-      }
-    }
+    for (CryptoTradePublicOrder order : cryptoTradeOrders)
+      limitOrders.add(adaptOrder(order, currencyPair, orderType));
 
     return limitOrders;
   }
 
-  public static AccountInfo adaptAccountInfo(String userName, CryptoTradeAccountInfoReturn btceAccountInfo) {
+  public static OrderBook adaptOrderBook(CurrencyPair currencyPair, CryptoTradeDepth cryptoTradeDepth) {
+
+    List<LimitOrder> asks = CryptoTradeAdapters.adaptOrders(cryptoTradeDepth.getAsks(), currencyPair, OrderType.ASK);
+    List<LimitOrder> bids = CryptoTradeAdapters.adaptOrders(cryptoTradeDepth.getBids(), currencyPair, OrderType.BID);
+
+    return new OrderBook(null, asks, bids);
+  }
+
+  public static AccountInfo adaptAccountInfo(String userName, CryptoTradeAccountInfo accountInfo) {
 
     List<Wallet> wallets = new ArrayList<Wallet>();
-    Map<String, BigDecimal> funds = btceAccountInfo.getAvailableFunds();
-    for (String lcCurrency : funds.keySet()) {
-      String currency = lcCurrency.toUpperCase();
-      try {
-        CurrencyUnit.of(currency);
-      } catch (IllegalCurrencyException e) {
-        // log.in("Ignoring unknown currency {}", currency);
-        continue;
-      }
-      wallets.add(Wallet.createInstance(currency, funds.get(lcCurrency)));
-    }
+    for (Entry<String, BigDecimal> fundsEntry : accountInfo.getFunds().entrySet())
+      wallets.add(new Wallet(fundsEntry.getKey().toUpperCase(), fundsEntry.getValue()));
 
     return new AccountInfo(userName, wallets);
+  }
+
+  public static Ticker adaptTicker(CurrencyPair currencyPair, CryptoTradeTicker cryptoTradeTicker) {
+
+    BigDecimal ask = cryptoTradeTicker.getMinAsk();
+    BigDecimal bid = cryptoTradeTicker.getMaxBid();
+    BigDecimal last = cryptoTradeTicker.getLast();
+    BigDecimal low = cryptoTradeTicker.getLow();
+    BigDecimal high = cryptoTradeTicker.getHigh();
+    BigDecimal volume = cryptoTradeTicker.getVolumeTradeCurrency();
+
+    return TickerBuilder.newInstance().withCurrencyPair(currencyPair).withAsk(ask).withBid(bid).withLast(last).withLow(low).withHigh(high).withVolume(volume).build();
+  }
+
+  public static OrderType adaptOrderType(CryptoTradeOrderType cryptoTradeOrderType) {
+
+    return (cryptoTradeOrderType.equals(CryptoTradeOrderType.Buy)) ? OrderType.BID : OrderType.ASK;
+  }
+
+  public static LimitOrder adaptOrder(CryptoTradeOrder order) {
+
+    Date timestamp = new Date(order.getOrderDate());
+    OrderType orderType = adaptOrderType(order.getType());
+
+    return new LimitOrder(orderType, order.getRemainingAmount(), order.getCurrencyPair(), String.valueOf(order.getId()), timestamp, order.getRate());
+  }
+
+  public static OpenOrders adaptOpenOrders(CryptoTradeOrders cryptoTradeOrders) {
+
+    List<LimitOrder> orderList = new ArrayList<LimitOrder>();
+    for (CryptoTradeOrder cryptoTradeOrder : cryptoTradeOrders.getOrders()) {
+      // TODO Change to check cryptoTradeOrder.getStatus() once all statuses are known.
+      if (cryptoTradeOrder.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0) {
+        LimitOrder adaptedOrder = adaptOrder(cryptoTradeOrder);
+        orderList.add(adaptedOrder);
+      }
+    }
+
+    return new OpenOrders(orderList);
+  }
+
+  public static Trade adaptTrade(CryptoTradeTrade trade) {
+
+    OrderType orderType = adaptOrderType(trade.getType());
+    Date timestamp = new Date(trade.getTimestamp());
+
+    return new Trade(orderType, trade.getAmount(), trade.getCurrencyPair(), trade.getRate(), timestamp, String.valueOf(trade.getId()), String.valueOf(trade.getMyOrder()));
+  }
+
+  public static Trades adaptTrades(CryptoTradeTrades cryptoTradeTrades) {
+
+    List<Trade> tradeList = new ArrayList<Trade>();
+    long lastTradeId = 0;
+    for (CryptoTradeTrade cryptoTradeTrade : cryptoTradeTrades.getTrades()) {
+      long tradeId = cryptoTradeTrade.getId();
+      if (tradeId > lastTradeId)
+        lastTradeId = tradeId;
+      Trade trade = adaptTrade(cryptoTradeTrade);
+      tradeList.add(trade);
+    }
+
+    return new Trades(tradeList, lastTradeId, TradeSortType.SortByTimestamp);
+  }
+
+  public static Trade adaptPublicTrade(CurrencyPair currencyPair, CryptoTradePublicTrade trade) {
+
+    OrderType orderType = adaptOrderType(trade.getType());
+    Date timestamp = new Date(trade.getTimestamp() * 1000);
+
+    return new Trade(orderType, trade.getOrderAmount(), currencyPair, trade.getRate(), timestamp, String.valueOf(trade.getId()));
+  }
+
+  public static Trades adaptPublicTradeHistory(CurrencyPair currencyPair, List<CryptoTradePublicTrade> publicTradeHistory) {
+
+    List<Trade> tradeList = new ArrayList<Trade>();
+    long lastTradeId = 0;
+    for (CryptoTradePublicTrade cryptoTradeTrade : publicTradeHistory) {
+      long tradeId = cryptoTradeTrade.getId();
+      if (tradeId > lastTradeId)
+        lastTradeId = tradeId;
+      Trade trade = adaptPublicTrade(currencyPair, cryptoTradeTrade);
+      tradeList.add(trade);
+    }
+
+    return new Trades(tradeList, lastTradeId, TradeSortType.SortByID);
   }
 
 }

@@ -1,30 +1,6 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.dto.trade;
 
 import java.math.BigDecimal;
-
-import org.joda.money.BigMoney;
-import org.joda.money.CurrencyUnit;
 
 /**
  * <p>
@@ -39,10 +15,9 @@ import org.joda.money.CurrencyUnit;
  */
 public final class Wallet {
 
-  // TODO BigMoney contains a currency representation is this required?
   private final String currency;
   private final String description;
-  private final BigMoney balance;
+  private final BigDecimal balance;
 
   /**
    * Constructor
@@ -50,7 +25,7 @@ public final class Wallet {
    * @param currency The underlying currency
    * @param balance The balance
    */
-  public Wallet(String currency, BigMoney balance) {
+  public Wallet(String currency, BigDecimal balance) {
 
     this.currency = currency;
     this.balance = balance;
@@ -62,21 +37,11 @@ public final class Wallet {
    * 
    * @param description Optional description to distinguish same currency Wallets
    */
-  public Wallet(String currency, BigMoney balance, String description) {
+  public Wallet(String currency, BigDecimal balance, String description) {
 
     this.currency = currency;
     this.balance = balance;
     this.description = description;
-  }
-
-  public static Wallet createInstance(String currency, BigDecimal amount) {
-
-    return new Wallet(currency, BigMoney.of(CurrencyUnit.of(currency), amount));
-  }
-
-  public static Wallet createInstance(String currency, BigDecimal amount, String description) {
-
-    return new Wallet(currency, BigMoney.of(CurrencyUnit.of(currency), amount), description);
   }
 
   public String getCurrency() {
@@ -84,7 +49,7 @@ public final class Wallet {
     return currency;
   }
 
-  public BigMoney getBalance() {
+  public BigDecimal getBalance() {
 
     return balance;
   }
@@ -114,31 +79,40 @@ public final class Wallet {
   @Override
   public boolean equals(Object obj) {
 
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Wallet other = (Wallet) obj;
     if (balance == null) {
-      if (other.balance != null)
+      if (other.balance != null) {
         return false;
+      }
     }
-    else if (!balance.equals(other.balance))
+    else if (!balance.equals(other.balance)) {
       return false;
+    }
     if (currency == null) {
-      if (other.currency != null)
+      if (other.currency != null) {
         return false;
+      }
     }
-    else if (!currency.equals(other.currency))
+    else if (!currency.equals(other.currency)) {
       return false;
+    }
     if (description == null) {
-      if (other.description != null)
+      if (other.description != null) {
         return false;
+      }
     }
-    else if (!description.equals(other.description))
+    else if (!description.equals(other.description)) {
       return false;
+    }
     return true;
   }
 

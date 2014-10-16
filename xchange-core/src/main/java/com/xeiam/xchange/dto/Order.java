@@ -1,28 +1,9 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.dto;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.xeiam.xchange.currency.CurrencyPair;
 
 /**
  * Data object representing an order
@@ -52,14 +33,9 @@ public class Order {
   private final BigDecimal tradableAmount;
 
   /**
-   * An identifier that uniquely identifies the tradeable
+   * The currency pair
    */
-  private final String tradableIdentifier;
-
-  /**
-   * The currency used to settle the market order transaction
-   */
-  private final String transactionCurrency;
+  private final CurrencyPair currencyPair;
 
   /**
    * An identifier that uniquely identifies the order
@@ -74,17 +50,15 @@ public class Order {
   /**
    * @param type Either BID (buying) or ASK (selling)
    * @param tradableAmount The amount to trade
-   * @param tradableIdentifier The identifier (e.g. BTC in BTC/USD)
-   * @param transactionCurrency The transaction currency (e.g. USD in BTC/USD)
+   * @param CurrencyPair currencyPair The identifier (e.g. BTC/USD)
    * @param id An id (usually provided by the exchange)
    * @param timestamp the absolute time for this order
    */
-  public Order(OrderType type, BigDecimal tradableAmount, String tradableIdentifier, String transactionCurrency, String id, Date timestamp) {
+  public Order(OrderType type, BigDecimal tradableAmount, CurrencyPair currencyPair, String id, Date timestamp) {
 
     this.type = type;
     this.tradableAmount = tradableAmount;
-    this.tradableIdentifier = tradableIdentifier;
-    this.transactionCurrency = transactionCurrency;
+    this.currencyPair = currencyPair;
     this.id = id;
     this.timestamp = timestamp;
   }
@@ -105,20 +79,9 @@ public class Order {
     return tradableAmount;
   }
 
-  /**
-   * @return The tradeable identifier (e.g. BTC in BTC/USD)
-   */
-  public String getTradableIdentifier() {
+  public CurrencyPair getCurrencyPair() {
 
-    return tradableIdentifier;
-  }
-
-  /**
-   * @return The transaction currency (e.g. USD in BTC/USD)
-   */
-  public String getTransactionCurrency() {
-
-    return transactionCurrency;
+    return currencyPair;
   }
 
   /**
@@ -137,8 +100,7 @@ public class Order {
   @Override
   public String toString() {
 
-    return "Order [type=" + type + ", tradableAmount=" + tradableAmount + ", tradableIdentifier=" + tradableIdentifier + ", transactionCurrency=" + transactionCurrency + ", id=" + id + ", timestamp="
-        + timestamp + "]";
+    return "Order [type=" + type + ", tradableAmount=" + tradableAmount + ", currencyPair=" + currencyPair + ", id=" + id + ", timestamp=" + timestamp + "]";
   }
 
   @Override
@@ -147,8 +109,7 @@ public class Order {
     int hash = 7;
     hash = 83 * hash + (this.type != null ? this.type.hashCode() : 0);
     hash = 83 * hash + (this.tradableAmount != null ? this.tradableAmount.hashCode() : 0);
-    hash = 83 * hash + (this.tradableIdentifier != null ? this.tradableIdentifier.hashCode() : 0);
-    hash = 83 * hash + (this.transactionCurrency != null ? this.transactionCurrency.hashCode() : 0);
+    hash = 83 * hash + (this.currencyPair != null ? this.currencyPair.hashCode() : 0);
     hash = 83 * hash + (this.id != null ? this.id.hashCode() : 0);
     hash = 83 * hash + (this.timestamp != null ? this.timestamp.hashCode() : 0);
     return hash;
@@ -167,13 +128,10 @@ public class Order {
     if (this.type != other.type) {
       return false;
     }
-    if (this.tradableAmount != other.tradableAmount && (this.tradableAmount == null || !this.tradableAmount.equals(other.tradableAmount))) {
+    if ((this.tradableAmount == null) ? (other.tradableAmount != null) : this.tradableAmount.compareTo(other.tradableAmount) != 0) {
       return false;
     }
-    if ((this.tradableIdentifier == null) ? (other.tradableIdentifier != null) : !this.tradableIdentifier.equals(other.tradableIdentifier)) {
-      return false;
-    }
-    if ((this.transactionCurrency == null) ? (other.transactionCurrency != null) : !this.transactionCurrency.equals(other.transactionCurrency)) {
+    if ((this.currencyPair == null) ? (other.currencyPair != null) : !this.currencyPair.equals(other.currencyPair)) {
       return false;
     }
     if ((this.id == null) ? (other.id != null) : !this.id.equals(other.id)) {

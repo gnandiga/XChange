@@ -1,8 +1,8 @@
 package com.xeiam.xchange.vircurex.dto.trade;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by David Henry on 2/20/14.
@@ -19,11 +19,9 @@ public class VircurexOpenOrder {
   private final String lastChangedDate;
   private final String releaseDate;
 
-  public VircurexOpenOrder(@JsonProperty("orderid") String orderId, @JsonProperty("ordertype") String orderType,
-                           @JsonProperty("quantity") BigDecimal quantity, @JsonProperty("openquantity") BigDecimal openQuantity,
-                           @JsonProperty("currency1") String baseCurrency, @JsonProperty("unitprice") BigDecimal unitPrice,
-                           @JsonProperty("currency2") String counterCurrency, @JsonProperty("lastchangedat") String lastChangedDate,
-                           @JsonProperty("releasedat") String releaseDate) {
+  public VircurexOpenOrder(@JsonProperty("orderid") String orderId, @JsonProperty("ordertype") String orderType, @JsonProperty("quantity") BigDecimal quantity,
+      @JsonProperty("openquantity") BigDecimal openQuantity, @JsonProperty("currency1") String baseCurrency, @JsonProperty("unitprice") BigDecimal unitPrice,
+      @JsonProperty("currency2") String counterCurrency, @JsonProperty("lastchangedat") String lastChangedDate, @JsonProperty("releasedat") String releaseDate) {
 
     this.orderId = orderId;
     this.baseCurrency = baseCurrency;
@@ -37,38 +35,47 @@ public class VircurexOpenOrder {
   }
 
   public String getBaseCurrency() {
+
     return baseCurrency;
   }
 
   public String getCounterCurrency() {
+
     return counterCurrency;
   }
 
   public BigDecimal getOpenQuantity() {
+
     return openQuantity;
   }
 
   public BigDecimal getQuantity() {
+
     return quantity;
   }
 
   public String getOrderId() {
+
     return orderId;
   }
 
   public BigDecimal getUnitPrice() {
+
     return unitPrice;
   }
 
   public String getOrderType() {
+
     return orderType;
   }
 
   public String getLastChangedDate() {
+
     return lastChangedDate;
   }
 
   public String getReleaseDate() {
+
     return releaseDate;
   }
 }

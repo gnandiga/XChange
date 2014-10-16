@@ -1,33 +1,11 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.campbx.service.polling;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.money.BigMoney;
-import org.joda.money.CurrencyUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +16,7 @@ import com.xeiam.xchange.campbx.CampBX;
 import com.xeiam.xchange.campbx.dto.CampBXOrder;
 import com.xeiam.xchange.campbx.dto.CampBXResponse;
 import com.xeiam.xchange.campbx.dto.trade.MyOpenOrders;
+import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import com.xeiam.xchange.dto.trade.LimitOrder;
@@ -72,6 +51,7 @@ public class CampBXTradeService extends CampBXTradeServiceRaw implements Polling
 
     if (!myOpenOrders.isError()) {
 
+      // TODO move to adapter class
       List<LimitOrder> orders = new ArrayList<LimitOrder>();
       for (CampBXOrder cbo : myOpenOrders.getBuy()) {
         if (cbo.isError() || cbo.isInfo()) {
@@ -79,8 +59,8 @@ public class CampBXTradeService extends CampBXTradeServiceRaw implements Polling
         }
         else {
           String id = composeOrderId(CampBX.OrderType.Buy, cbo.getOrderID());
-          BigMoney price = BigMoney.of(CurrencyUnit.USD, cbo.getPrice());
-          orders.add(new LimitOrder(Order.OrderType.BID, cbo.getQuantity(), "BTC", "USD", id, cbo.getOrderEntered(), price));
+          BigDecimal price = cbo.getPrice();
+          orders.add(new LimitOrder(Order.OrderType.BID, cbo.getQuantity(), CurrencyPair.BTC_USD, id, cbo.getOrderEntered(), price));
         }
       }
       for (CampBXOrder cbo : myOpenOrders.getSell()) {
@@ -90,8 +70,8 @@ public class CampBXTradeService extends CampBXTradeServiceRaw implements Polling
         else {
 
           String id = composeOrderId(CampBX.OrderType.Sell, cbo.getOrderID());
-          BigMoney price = BigMoney.of(CurrencyUnit.USD, cbo.getPrice());
-          orders.add(new LimitOrder(Order.OrderType.ASK, cbo.getQuantity(), "BTC", "USD", id, cbo.getOrderEntered(), price));
+          BigDecimal price = cbo.getPrice();
+          orders.add(new LimitOrder(Order.OrderType.ASK, cbo.getQuantity(), CurrencyPair.BTC_USD, id, cbo.getOrderEntered(), price));
         }
       }
       return new OpenOrders(orders);

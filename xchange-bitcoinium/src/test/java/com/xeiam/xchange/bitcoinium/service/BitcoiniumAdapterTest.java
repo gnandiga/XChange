@@ -1,24 +1,3 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.bitcoinium.service;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -35,6 +14,7 @@ import com.xeiam.xchange.bitcoinium.dto.marketdata.BitcoiniumOrderbook;
 import com.xeiam.xchange.bitcoinium.dto.marketdata.BitcoiniumTicker;
 import com.xeiam.xchange.bitcoinium.service.marketdata.BitcoiniumDepthJSONTest;
 import com.xeiam.xchange.bitcoinium.service.marketdata.BitcoiniumTickerJSONTest;
+import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order.OrderType;
 import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
@@ -54,14 +34,13 @@ public class BitcoiniumAdapterTest {
     ObjectMapper mapper = new ObjectMapper();
     BitcoiniumOrderbook bitcoiniumDepth = mapper.readValue(is, BitcoiniumOrderbook.class);
 
-    OrderBook orderBook = BitcoiniumAdapters.adaptOrderbook(bitcoiniumDepth, "BTC", "USD");
+    OrderBook orderBook = BitcoiniumAdapters.adaptOrderbook(bitcoiniumDepth, CurrencyPair.BTC_USD);
 
     // Verify all fields filled
-    assertThat(orderBook.getAsks().get(0).getLimitPrice().getAmount().doubleValue()).isEqualTo(132.79);
+    assertThat(orderBook.getAsks().get(0).getLimitPrice()).isEqualTo(new BigDecimal("522.9"));
     assertThat(orderBook.getAsks().get(0).getType()).isEqualTo(OrderType.ASK);
-    assertThat(orderBook.getAsks().get(0).getTradableAmount().doubleValue()).isEqualTo(45.98);
-    assertThat(orderBook.getAsks().get(0).getTradableIdentifier()).isEqualTo("BTC");
-    assertThat(orderBook.getAsks().get(0).getTransactionCurrency()).isEqualTo("USD");
+    assertThat(orderBook.getAsks().get(0).getTradableAmount()).isEqualTo(new BigDecimal("1.07"));
+    assertThat(orderBook.getAsks().get(0).getCurrencyPair()).isEqualTo(CurrencyPair.BTC_USD);
   }
 
   @Test
@@ -74,13 +53,13 @@ public class BitcoiniumAdapterTest {
     ObjectMapper mapper = new ObjectMapper();
     BitcoiniumTicker BitcoiniumTicker = mapper.readValue(is, BitcoiniumTicker.class);
 
-    Ticker ticker = BitcoiniumAdapters.adaptTicker(BitcoiniumTicker, "USD", "BTC");
+    Ticker ticker = BitcoiniumAdapters.adaptTicker(BitcoiniumTicker, CurrencyPair.BTC_USD);
     System.out.println(ticker.toString());
 
-    assertThat(ticker.getLast().toString()).isEqualTo("USD 914.88696");
-    assertThat(ticker.getLow().toString()).isEqualTo("USD 848.479");
-    assertThat(ticker.getHigh().toString()).isEqualTo("USD 932.38");
-    assertThat(ticker.getVolume()).isEqualTo(new BigDecimal("13425"));
+    assertThat(ticker.getLast()).isEqualTo(new BigDecimal("516.8"));
+    assertThat(ticker.getLow().toString()).isEqualTo("508.28");
+    assertThat(ticker.getHigh().toString()).isEqualTo("523.09");
+    assertThat(ticker.getVolume()).isEqualTo(new BigDecimal("3522"));
 
   }
 }

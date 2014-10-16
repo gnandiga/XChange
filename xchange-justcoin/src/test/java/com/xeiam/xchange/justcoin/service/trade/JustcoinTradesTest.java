@@ -1,24 +1,3 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.justcoin.service.trade;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -30,18 +9,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.joda.money.BigMoney;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xeiam.xchange.currency.Currencies;
-import com.xeiam.xchange.currency.MoneyUtils;
 import com.xeiam.xchange.dto.Order.OrderType;
 import com.xeiam.xchange.dto.marketdata.Trade;
 import com.xeiam.xchange.justcoin.JustcoinAdapters;
 import com.xeiam.xchange.justcoin.JustcoinUtils;
-import com.xeiam.xchange.justcoin.dto.trade.JustcoinTrade;
+import com.xeiam.xchange.justcoin.dto.trade.out.JustcoinTrade;
 
 /**
  * @author jamespedwards42
@@ -51,7 +28,7 @@ public class JustcoinTradesTest {
   private String id;
   private String tradableIdentifier;
   private String transactionCurrency;
-  private BigMoney averagePrice;
+  private BigDecimal averagePrice;
   private BigDecimal amount;
   private Date orderCreatedAt;
   private JustcoinTrade justcoinTrade;
@@ -63,7 +40,7 @@ public class JustcoinTradesTest {
     id = "1591866";
     tradableIdentifier = Currencies.BTC;
     transactionCurrency = Currencies.LTC;
-    averagePrice = MoneyUtils.parseMoney(transactionCurrency, BigDecimal.valueOf(31.400));
+    averagePrice = BigDecimal.valueOf(31.400);
     amount = BigDecimal.valueOf(0.50024);
     try {
       orderCreatedAt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").parse("2014-01-07T06:44:14.576Z");
@@ -72,7 +49,7 @@ public class JustcoinTradesTest {
     }
     justcoinTrade =
         new JustcoinTrade(id, JustcoinUtils.getApiMarket(tradableIdentifier, transactionCurrency), "bid", null, amount, BigDecimal.ZERO, BigDecimal.valueOf(0.50024), BigDecimal.ZERO, orderCreatedAt,
-            averagePrice.getAmount());
+            averagePrice);
   }
 
   @Test
@@ -98,8 +75,8 @@ public class JustcoinTradesTest {
     assertThat(trade.getPrice()).isEqualTo(averagePrice);
     assertThat(trade.getTimestamp()).isEqualTo(orderCreatedAt);
     assertThat(trade.getTradableAmount()).isEqualTo(amount);
-    assertThat(trade.getTradableIdentifier()).isEqualTo(tradableIdentifier);
-    assertThat(trade.getTransactionCurrency()).isEqualTo(transactionCurrency);
+    assertThat(trade.getCurrencyPair().baseSymbol).isEqualTo(tradableIdentifier);
+    assertThat(trade.getCurrencyPair().counterSymbol).isEqualTo(transactionCurrency);
     assertThat(trade.getType()).isEqualTo(OrderType.BID);
   }
 }

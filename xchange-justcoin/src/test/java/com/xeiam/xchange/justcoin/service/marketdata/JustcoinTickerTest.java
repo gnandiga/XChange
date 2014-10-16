@@ -1,24 +1,3 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.justcoin.service.marketdata;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -26,14 +5,15 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.joda.money.BigMoney;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xeiam.xchange.currency.Currencies;
-import com.xeiam.xchange.currency.MoneyUtils;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.justcoin.JustcoinAdapters;
 import com.xeiam.xchange.justcoin.JustcoinUtils;
@@ -44,13 +24,12 @@ import com.xeiam.xchange.justcoin.dto.marketdata.JustcoinTicker;
  */
 public class JustcoinTickerTest {
 
-  private String tradableIdentifier;
-  private String currency;
-  private BigMoney high;
-  private BigMoney low;
-  private BigMoney last;
-  private BigMoney bid;
-  private BigMoney ask;
+  private CurrencyPair currencyPair;
+  private BigDecimal high;
+  private BigDecimal low;
+  private BigDecimal last;
+  private BigDecimal bid;
+  private BigDecimal ask;
   private BigDecimal volume;
   private JustcoinTicker justcoinTicker;
 
@@ -58,15 +37,14 @@ public class JustcoinTickerTest {
   public void before() {
 
     // initialize expected values
-    tradableIdentifier = Currencies.BTC;
-    currency = Currencies.XRP;
-    high = MoneyUtils.parseMoney(currency, BigDecimal.valueOf(43998.000));
-    low = MoneyUtils.parseMoney(currency, BigDecimal.valueOf(40782.944));
-    last = MoneyUtils.parseMoney(currency, BigDecimal.valueOf(40900.000));
-    bid = MoneyUtils.parseMoney(currency, BigDecimal.valueOf(40905.000));
-    ask = MoneyUtils.parseMoney(currency, BigDecimal.valueOf(43239.000));
+    currencyPair = CurrencyPair.BTC_XRP;
+    high = BigDecimal.valueOf(43998.000);
+    low = BigDecimal.valueOf(40782.944);
+    last = BigDecimal.valueOf(40900.000);
+    bid = BigDecimal.valueOf(40905.000);
+    ask = BigDecimal.valueOf(43239.000);
     volume = BigDecimal.valueOf(26.39377);
-    justcoinTicker = new JustcoinTicker(JustcoinUtils.getApiMarket(tradableIdentifier, currency), high.getAmount(), low.getAmount(), volume, last.getAmount(), bid.getAmount(), ask.getAmount(), 3);
+    justcoinTicker = new JustcoinTicker(JustcoinUtils.getApiMarket(currencyPair), high, low, volume, last, bid, ask, 3);
   }
 
   @Test
@@ -77,18 +55,21 @@ public class JustcoinTickerTest {
 
     // Use Jackson to parse it
     final ObjectMapper mapper = new ObjectMapper();
-    final JustcoinTicker[] tickers = mapper.readValue(is, new JustcoinTicker[0].getClass());
+    CollectionType collectionType = mapper.getTypeFactory().constructCollectionType(List.class, JustcoinTicker.class);
+    final List<JustcoinTicker> tickers = mapper.readValue(is, collectionType);
 
     // Verify that the example data was unmarshalled correctly
-    assertThat(tickers.length).isEqualTo(5);
-    final JustcoinTicker xrpTicker = tickers[4];
+    assertThat(tickers.size()).isEqualTo(5);
+    final JustcoinTicker xrpTicker = tickers.get(4);
     assertThat(xrpTicker).isEqualTo(justcoinTicker);
   }
 
   @Test
   public void testAdapter() {
 
-    final Ticker ticker = JustcoinAdapters.adaptTicker(new JustcoinTicker[] { justcoinTicker }, tradableIdentifier, currency);
+    final List<JustcoinTicker> tickers = new ArrayList<JustcoinTicker>();
+    tickers.add(justcoinTicker);
+    final Ticker ticker = JustcoinAdapters.adaptTicker(tickers, currencyPair);
 
     assertThat(ticker.getLast()).isEqualTo(last);
     assertThat(ticker.getHigh()).isEqualTo(high);
@@ -97,6 +78,6 @@ public class JustcoinTickerTest {
     assertThat(ticker.getAsk()).isEqualTo(ask);
     assertThat(ticker.getVolume()).isEqualTo(volume);
     assertThat(ticker.getTimestamp()).isNull();
-    assertThat(ticker.getTradableIdentifier()).isEqualTo(tradableIdentifier);
+    assertThat(ticker.getCurrencyPair()).isEqualTo(currencyPair);
   }
 }

@@ -2,8 +2,6 @@ package com.xeiam.xchange.btce.v3.service.polling;
 
 import java.io.IOException;
 
-import si.mazi.rescu.RestProxyFactory;
-
 import com.xeiam.xchange.ExchangeSpecification;
 import com.xeiam.xchange.btce.v3.BTCE;
 import com.xeiam.xchange.btce.v3.dto.marketdata.BTCEDepthWrapper;
@@ -15,9 +13,8 @@ import com.xeiam.xchange.btce.v3.dto.marketdata.BTCETradesWrapper;
  * Author: brox
  * Since: 2014-02-12
  */
-public class BTCEMarketDataServiceRaw extends BTCEBasePollingService {
+public class BTCEMarketDataServiceRaw extends BTCEBasePollingService<BTCE> {
 
-  private final BTCE btce;
   protected static final int FULL_SIZE = 2000;
 
   /**
@@ -27,8 +24,7 @@ public class BTCEMarketDataServiceRaw extends BTCEBasePollingService {
    */
   public BTCEMarketDataServiceRaw(ExchangeSpecification exchangeSpecification) {
 
-    super(exchangeSpecification);
-    this.btce = RestProxyFactory.createProxy(BTCE.class, exchangeSpecification.getSslUri());
+    super(BTCE.class, exchangeSpecification);
   }
 
   /**

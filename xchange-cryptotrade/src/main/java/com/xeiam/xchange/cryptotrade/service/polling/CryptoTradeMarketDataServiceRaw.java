@@ -1,33 +1,20 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.cryptotrade.service.polling;
 
 import java.io.IOException;
-
-import si.mazi.rescu.RestProxyFactory;
+import java.util.List;
+import java.util.Map;
 
 import com.xeiam.xchange.ExchangeSpecification;
 import com.xeiam.xchange.cryptotrade.CryptoTrade;
+import com.xeiam.xchange.cryptotrade.dto.CryptoTradeException;
+import com.xeiam.xchange.cryptotrade.dto.CryptoTradePair;
+import com.xeiam.xchange.cryptotrade.dto.CryptoTradePairs;
 import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradeDepth;
+import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradePublicTrade;
+import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradePublicTrades;
+import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradeTicker;
+import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradeTickers;
+import com.xeiam.xchange.currency.CurrencyPair;
 
 /**
  * <p>
@@ -37,9 +24,7 @@ import com.xeiam.xchange.cryptotrade.dto.marketdata.CryptoTradeDepth;
  * <li>Provides access to various market data values</li>
  * </ul>
  */
-public class CryptoTradeMarketDataServiceRaw extends CryptoTradeBasePollingService {
-
-  private final CryptoTrade cryptoTrade;
+public class CryptoTradeMarketDataServiceRaw extends CryptoTradeBasePollingService<CryptoTrade> {
 
   /**
    * Constructor
@@ -48,15 +33,55 @@ public class CryptoTradeMarketDataServiceRaw extends CryptoTradeBasePollingServi
    */
   public CryptoTradeMarketDataServiceRaw(ExchangeSpecification exchangeSpecification) {
 
-    super(exchangeSpecification);
-    cryptoTrade = RestProxyFactory.createProxy(CryptoTrade.class, exchangeSpecification.getSslUri());
+    super(CryptoTrade.class, exchangeSpecification);
   }
 
-  public CryptoTradeDepth getCryptoTradeOrderBook(String tradableIdentifier, String currency) throws IOException {
+  public CryptoTradeTicker getCryptoTradeTicker(CurrencyPair currencyPair) throws CryptoTradeException, IOException {
 
-    CryptoTradeDepth cryptoTradeDepth = cryptoTrade.getFullDepth(tradableIdentifier.toLowerCase(), currency.toLowerCase());
+    CryptoTradeTicker cryptoTradeTicker = cryptoTradeProxy.getTicker(currencyPair.baseSymbol.toLowerCase(), currencyPair.counterSymbol.toLowerCase());
 
-    return cryptoTradeDepth;
+    return handleResponse(cryptoTradeTicker);
   }
 
+  public Map<CurrencyPair, CryptoTradeTicker> getCryptoTradeTickers() throws CryptoTradeException, IOException {
+
+    CryptoTradeTickers cryptoTradeTickers = cryptoTradeProxy.getTickers();
+
+    return handleResponse(cryptoTradeTickers).getTickers();
+  }
+
+  public CryptoTradeDepth getCryptoTradeOrderBook(CurrencyPair currencyPair) throws CryptoTradeException, IOException {
+
+    CryptoTradeDepth cryptoTradeDepth = cryptoTradeProxy.getFullDepth(currencyPair.baseSymbol.toLowerCase(), currencyPair.counterSymbol.toLowerCase());
+
+    return handleResponse(cryptoTradeDepth);
+  }
+
+  public List<CryptoTradePublicTrade> getCryptoTradeTradeHistory(CurrencyPair currencyPair) throws CryptoTradeException, IOException {
+
+    CryptoTradePublicTrades cryptoTradeDepth = cryptoTradeProxy.getTradeHistory(currencyPair.baseSymbol.toLowerCase(), currencyPair.counterSymbol.toLowerCase());
+
+    return handleResponse(cryptoTradeDepth).getPublicTrades();
+  }
+
+  public List<CryptoTradePublicTrade> getCryptoTradeTradeHistory(CurrencyPair currencyPair, long sinceTimestamp) throws CryptoTradeException, IOException {
+
+    CryptoTradePublicTrades cryptoTradeDepth = cryptoTradeProxy.getTradeHistory(currencyPair.baseSymbol.toLowerCase(), currencyPair.counterSymbol.toLowerCase(), sinceTimestamp);
+
+    return handleResponse(cryptoTradeDepth).getPublicTrades();
+  }
+
+  public CryptoTradePair getCryptoTradePairInfo(CurrencyPair currencyPair) throws CryptoTradeException, IOException {
+
+    CryptoTradePair cryptoTradePair = cryptoTradeProxy.getPair(currencyPair.baseSymbol.toLowerCase(), currencyPair.counterSymbol.toLowerCase());
+
+    return handleResponse(cryptoTradePair);
+  }
+
+  public Map<CurrencyPair, CryptoTradePair> getCryptoTradePairs() throws CryptoTradeException, IOException {
+
+    CryptoTradePairs cryptoPairs = cryptoTradeProxy.getPairs();
+
+    return handleResponse(cryptoPairs).getPairs();
+  }
 }

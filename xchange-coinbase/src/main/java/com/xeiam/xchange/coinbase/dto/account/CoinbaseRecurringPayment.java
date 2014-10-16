@@ -1,36 +1,14 @@
-/**
- * Copyright (C) 2012 - 2014 Xeiam LLC http://xeiam.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.xeiam.xchange.coinbase.dto.account;
 
 import java.util.Date;
-
-import org.joda.money.BigMoney;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.xeiam.xchange.coinbase.dto.common.CoinbaseRecurringPaymentStatus;
 import com.xeiam.xchange.coinbase.dto.common.CoinbaseRecurringPaymentType;
 import com.xeiam.xchange.coinbase.dto.common.CoinbaseRepeat;
-import com.xeiam.xchange.coinbase.dto.serialization.CoinbaseBigMoneyDeserializer;
+import com.xeiam.xchange.coinbase.dto.marketdata.CoinbaseMoney;
+import com.xeiam.xchange.coinbase.dto.serialization.CoinbaseMoneyDeserializer;
 import com.xeiam.xchange.utils.jackson.ISO8601DateDeserializer;
 
 /**
@@ -115,7 +93,7 @@ public class CoinbaseRecurringPayment {
     return recurringPayment.getDescription();
   }
 
-  public BigMoney getAmount() {
+  public CoinbaseMoney getAmount() {
 
     return recurringPayment.getAmount();
   }
@@ -142,14 +120,15 @@ public class CoinbaseRecurringPayment {
     private final Date nextRun;
     private final String notes;
     private final String description;
-    private final BigMoney amount;
+    private final CoinbaseMoney amount;
 
     private CoinbaseRecurringPaymentInfo(@JsonProperty("id") final String id, @JsonProperty("type") final CoinbaseRecurringPaymentType type,
         @JsonProperty("status") final CoinbaseRecurringPaymentStatus status, @JsonProperty("created_at") @JsonDeserialize(using = ISO8601DateDeserializer.class) final Date createdAt,
         @JsonProperty("to") final String to, @JsonProperty("from") final String from, @JsonProperty("start_type") final String startType, @JsonProperty("times") final int times,
-        @JsonProperty("times_run") final int timesRun, @JsonProperty("repeat") final CoinbaseRepeat repeat, @JsonProperty("last_run") final Date lastRun, @JsonProperty("next_run") final Date nextRun,
-        @JsonProperty("notes") final String notes, @JsonProperty("description") final String description,
-        @JsonProperty("amount") @JsonDeserialize(using = CoinbaseBigMoneyDeserializer.class) final BigMoney amount) {
+        @JsonProperty("times_run") final int timesRun, @JsonProperty("repeat") final CoinbaseRepeat repeat,
+        @JsonProperty("last_run") @JsonDeserialize(using = ISO8601DateDeserializer.class) final Date lastRun,
+        @JsonProperty("next_run") @JsonDeserialize(using = ISO8601DateDeserializer.class) final Date nextRun, @JsonProperty("notes") final String notes,
+        @JsonProperty("description") final String description, @JsonProperty("amount") @JsonDeserialize(using = CoinbaseMoneyDeserializer.class) final CoinbaseMoney amount) {
 
       this.id = id;
       this.type = type;
@@ -238,7 +217,7 @@ public class CoinbaseRecurringPayment {
       return description;
     }
 
-    public BigMoney getAmount() {
+    public CoinbaseMoney getAmount() {
 
       return amount;
     }
